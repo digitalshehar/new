@@ -1,0 +1,120 @@
+---
+// Import the type only
+import type { NutritionInfo } from '../components/admin/NutritionalData';
+
+interface Props {
+  nutritionInfo: NutritionInfo;
+  className?: string;
+}
+
+const { nutritionInfo, className = "" } = Astro.props;
+
+// Format numbers with proper units
+const formatValue = (value: number | undefined, unit: string): string => {
+  if (value === undefined || isNaN(value)) return '-';
+  return `${value}${unit}`;
+};
+
+// Determine if we have enough data to display the nutrition facts
+const hasNutritionData = nutritionInfo && (
+  nutritionInfo.calories || 
+  nutritionInfo.fat || 
+  nutritionInfo.carbohydrates || 
+  nutritionInfo.protein
+);
+---
+
+{hasNutritionData && (
+  <div class={`${className} bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4`}>
+    <h3 class="text-lg font-bold border-b border-gray-200 dark:border-gray-700 pb-1 mb-2">Nutrition Facts</h3>
+    
+    {nutritionInfo.servingSize && (
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+        Serving Size: {nutritionInfo.servingSize}
+      </p>
+    )}
+    
+    <div class="border-b border-gray-200 dark:border-gray-700 py-2 font-bold flex justify-between">
+      <span>Calories</span>
+      <span>{formatValue(nutritionInfo.calories, '')}</span>
+    </div>
+    
+    {/* Fat */}
+    {nutritionInfo.fat !== undefined && (
+      <div class="border-b border-gray-200 dark:border-gray-700 py-2">
+        <div class="flex justify-between">
+          <span class="font-bold">Total Fat</span>
+          <span>{formatValue(nutritionInfo.fat, 'g')}</span>
+        </div>
+        
+        {nutritionInfo.saturatedFat !== undefined && (
+          <div class="flex justify-between pl-4 text-sm mt-1">
+            <span>Saturated Fat</span>
+            <span>{formatValue(nutritionInfo.saturatedFat, 'g')}</span>
+          </div>
+        )}
+        
+        {nutritionInfo.transFat !== undefined && (
+          <div class="flex justify-between pl-4 text-sm mt-1">
+            <span>Trans Fat</span>
+            <span>{formatValue(nutritionInfo.transFat, 'g')}</span>
+          </div>
+        )}
+      </div>
+    )}
+    
+    {/* Cholesterol */}
+    {nutritionInfo.cholesterol !== undefined && (
+      <div class="border-b border-gray-200 dark:border-gray-700 py-2 flex justify-between">
+        <span class="font-bold">Cholesterol</span>
+        <span>{formatValue(nutritionInfo.cholesterol, 'mg')}</span>
+      </div>
+    )}
+    
+    {/* Sodium */}
+    {nutritionInfo.sodium !== undefined && (
+      <div class="border-b border-gray-200 dark:border-gray-700 py-2 flex justify-between">
+        <span class="font-bold">Sodium</span>
+        <span>{formatValue(nutritionInfo.sodium, 'mg')}</span>
+      </div>
+    )}
+    
+    {/* Carbohydrates */}
+    {nutritionInfo.carbohydrates !== undefined && (
+      <div class="border-b border-gray-200 dark:border-gray-700 py-2">
+        <div class="flex justify-between">
+          <span class="font-bold">Total Carbohydrates</span>
+          <span>{formatValue(nutritionInfo.carbohydrates, 'g')}</span>
+        </div>
+        
+        {nutritionInfo.fiber !== undefined && (
+          <div class="flex justify-between pl-4 text-sm mt-1">
+            <span>Dietary Fiber</span>
+            <span>{formatValue(nutritionInfo.fiber, 'g')}</span>
+          </div>
+        )}
+        
+        {nutritionInfo.sugars !== undefined && (
+          <div class="flex justify-between pl-4 text-sm mt-1">
+            <span>Sugars</span>
+            <span>{formatValue(nutritionInfo.sugars, 'g')}</span>
+          </div>
+        )}
+      </div>
+    )}
+    
+    {/* Protein */}
+    {nutritionInfo.protein !== undefined && (
+      <div class="border-b border-gray-200 dark:border-gray-700 py-2 flex justify-between">
+        <span class="font-bold">Protein</span>
+        <span>{formatValue(nutritionInfo.protein, 'g')}</span>
+      </div>
+    )}
+    
+    {nutritionInfo.servingsPerRecipe && (
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+        * Percent Daily Values are based on a 2,000 calorie diet. Recipe makes approximately {nutritionInfo.servingsPerRecipe} servings.
+      </p>
+    )}
+  </div>
+)}

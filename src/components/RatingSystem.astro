@@ -1,0 +1,170 @@
+---
+interface Props {
+  itemId: string;
+  initialRating?: number;
+  totalRatings?: number;
+  type?: 'recipe' | 'product';
+}
+
+const { itemId, initialRating = 0, totalRatings = 0, type = 'recipe' } = Astro.props;
+---
+
+<div class="rating-component" data-item-id={itemId} data-type={type}>
+  <div class="stars-container flex items-center gap-2">
+    <div class="stars flex">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <button
+          class="star-btn p-0.5 focus:outline-none focus:ring-2 focus:ring-jamie-blue rounded"
+          data-rating={index + 1}
+          aria-label={`Rate ${index + 1} stars`}
+        >
+          <svg
+            class="w-6 h-6 star-icon text-gray-400 hover:text-yellow-400 transition-colors"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+            />
+          </svg>
+        </button>
+      ))}
+    </div>
+    <div class="rating-info text-sm text-gray-600">
+      <span class="average-rating">{initialRating.toFixed(1)}</span>
+      <span class="text-gray-400 mx-1">•</span>
+      <span class="rating-count">({totalRatings} ratings)</span>
+    </div>
+  </div>
+  <div class="rating-message mt-1 text-sm text-jamie-orange hidden"></div>
+</div>
+
+<script>
+  class RatingSystem {
+    private component: HTMLElement;
+    private stars: NodeListOf<HTMLButtonElement>;
+    private averageRating: HTMLElement;
+    private ratingCount: HTMLElement;
+    private message: HTMLElement;
+    private itemId: string;
+    private type: string;
+    private userRating: number | null = null;
+
+    constructor(component: HTMLElement) {
+      this.component = component;
+      this.itemId = component.dataset.itemId || '';
+      this.type = component.dataset.type || 'recipe';
+      this.stars = component.querySelectorAll('.star-btn');
+      this.averageRating = component.querySelector('.average-rating')!;
+      this.ratingCount = component.querySelector('.rating-count')!;
+      this.message = component.querySelector('.rating-message')!;
+
+      this.initialize();
+    }
+
+    private initialize() {
+      // Load user's previous rating from localStorage
+      this.userRating = this.loadRating();
+      if (this.userRating) {
+        this.updateStarDisplay(this.userRating);
+      }
+
+      // Add event listeners
+      this.stars.forEach(star => {
+        star.addEventListener('click', () => this.handleRating(parseInt(star.dataset.rating || '0')));
+        star.addEventListener('mouseenter', () => this.handleHover(parseInt(star.dataset.rating || '0')));
+        star.addEventListener('mouseleave', () => this.handleHoverExit());
+      });
+    }
+
+    private async handleRating(rating: number) {
+      try {
+        const response = await fetch(`/api/${this.type}s/rate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: this.itemId,
+            rating: rating
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to submit rating');
+        }
+
+        const data = await response.json();
+        this.saveRating(rating);
+        this.userRating = rating;
+        this.updateDisplay(data.averageRating, data.totalRatings);
+        this.showMessage('Thank you for rating!', 'success');
+      } catch (error) {
+        console.error('Error submitting rating:', error);
+        this.showMessage('Failed to submit rating. Please try again.', 'error');
+      }
+    }
+
+    private handleHover(rating: number) {
+      this.stars.forEach((star, index) => {
+        const starIcon = star.querySelector('.star-icon');
+        if (starIcon) {
+          if (index < rating) {
+            starIcon.classList.remove('text-gray-400');
+            starIcon.classList.add('text-yellow-400');
+          } else {
+            starIcon.classList.add('text-gray-400');
+            starIcon.classList.remove('text-yellow-400');
+          }
+        }
+      });
+    }
+
+    private handleHoverExit() {
+      this.updateStarDisplay(this.userRating || 0);
+    }
+
+    private updateStarDisplay(rating: number) {
+      this.stars.forEach((star, index) => {
+        const starIcon = star.querySelector('.star-icon');
+        if (starIcon) {
+          if (index < rating) {
+            starIcon.classList.remove('text-gray-400');
+            starIcon.classList.add('text-yellow-400');
+          } else {
+            starIcon.classList.add('text-gray-400');
+            starIcon.classList.remove('text-yellow-400');
+          }
+        }
+      });
+    }
+
+    private updateDisplay(averageRating: number, totalRatings: number) {
+      this.averageRating.textContent = averageRating.toFixed(1);
+      this.ratingCount.textContent = `(${totalRatings} ratings)`;
+    }
+
+    private showMessage(text: string, type: 'success' | 'error') {
+      this.message.textContent = text;
+      this.message.classList.remove('hidden');
+      this.message.classList.toggle('text-red-500', type === 'error');
+      setTimeout(() => {
+        this.message.classList.add('hidden');
+      }, 3000);
+    }
+
+    private saveRating(rating: number) {
+      localStorage.setItem(`${this.type}-rating-${this.itemId}`, rating.toString());
+    }
+
+    private loadRating(): number | null {
+      const saved = localStorage.getItem(`${this.type}-rating-${this.itemId}`);
+      return saved ? parseInt(saved) : null;
+    }
+  }
+
+  // Initialize all rating components on the page
+  document.querySelectorAll('.rating-component').forEach(component => {
+    new RatingSystem(component as HTMLElement);
+  });
+</script>

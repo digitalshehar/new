@@ -1,0 +1,180 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RecipeHero from '../../components/RecipeHero';
+import RecipeContent from '../../components/RecipeContent';
+import RecipeComments from '../../components/RecipeComments';
+import TableOfContents from '../../components/TableOfContents';
+import RecipeTimer from '../../components/RecipeTimer';
+import IngredientsList from '../../components/IngredientsList';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+
+const recipe = {
+  title: "Vegetable Biryani",
+  description: "A fragrant and flavorful layered rice dish packed with mixed vegetables, aromatic spices, and fresh herbs. This royal dish is perfect for special occasions!",
+  image: "/images/recipes/veg-biryani.jpg",
+  cookingTime: "60 minutes",
+  timeCategory: "Under 1 hour",
+  difficulty: "Medium",
+  serves: "6",
+  category: "Main Course",
+  slug: "vegetable-biryani",
+  featured: true,
+  rating: 4.7,
+  totalRatings: 189,
+  ingredients: [
+    "3 cups Basmati rice",
+    "Mixed vegetables (carrots, peas, potatoes, cauliflower)",
+    "2 onions, thinly sliced",
+    "3 tomatoes, chopped",
+    "1/2 cup yogurt",
+    "4 tbsp ghee",
+    "2 tbsp ginger-garlic paste",
+    "2 tsp biryani masala",
+    "1 tsp turmeric powder",
+    "2 tsp red chili powder",
+    "4-5 green cardamoms",
+    "2 black cardamoms",
+    "4-5 cloves",
+    "2 cinnamon sticks",
+    "2 bay leaves",
+    "Saffron strands soaked in milk",
+    "Fresh mint and coriander leaves",
+    "Fried onions for garnish",
+    "Salt to taste"
+  ],
+  method: [
+    {
+      step: "Prepare rice",
+      time: 15,
+      description: "Soak Basmati rice for 30 minutes. Cook with whole spices until 70% done."
+    },
+    {
+      step: "Cook vegetables",
+      time: 20,
+      description: "Sauté vegetables with spices and yogurt until partially cooked."
+    },
+    {
+      step: "Layer the biryani",
+      time: 10,
+      description: "Layer rice and vegetables alternatively. Top with saffron milk, herbs, and fried onions."
+    },
+    {
+      step: "Dum cooking",
+      time: 20,
+      description: "Seal the pot with dough or foil. Cook on low heat for perfect integration of flavors."
+    }
+  ],
+  tips: [
+    "Always use good quality aged Basmati rice",
+    "Don't overcook the rice in the first stage",
+    "Let the biryani rest for 10 minutes before opening",
+    "Use fresh whole spices for the best aroma"
+  ],
+  nutritionInfo: {
+    calories: "380",
+    protein: "8g",
+    carbs: "65g",
+    fat: "12g"
+  },
+  dietaryPreferences: ["Vegetarian"],
+  season: "All",
+  reviews: [],
+  prepTime: "30 mins",
+  totalTime: "90 mins",
+  variations: [
+    {
+      title: "Quick Version",
+      description: "A simplified version for weekday cooking",
+      changes: [
+        "Use pre-cut frozen vegetables",
+        "Skip the layering process",
+        "Cook everything together in a pressure cooker",
+        "Use ready-made biryani masala"
+      ]
+    },
+    {
+      title: "Brown Rice Version",
+      description: "A healthier alternative",
+      changes: [
+        "Use brown Basmati rice",
+        "Increase cooking time for rice",
+        "Add more water while cooking",
+        "Include more vegetables for extra nutrition"
+      ]
+    }
+  ]
+};
+
+const sections = [
+  { id: 'ingredients', title: 'Ingredients' },
+  { id: 'method', title: 'Method' },
+  { id: 'tips', title: 'Chef\'s Tips' },
+  { id: 'variations', title: 'Variations' },
+  { id: 'nutrition', title: 'Nutrition' }
+];
+
+const breadcrumbItems = [
+  { label: 'Recipes', href: '/recipes' },
+  { label: recipe.title, href: `/recipes/${recipe.slug}` }
+];
+
+const headerOptions = {
+  bgImage: recipe.image,
+  overlay: true,
+  textColor: 'text-white'
+};
+---
+
+<Layout title={`${recipe.title} | AillyCorner`}>
+  <main class="min-h-screen">
+    <Breadcrumbs items={breadcrumbItems} header={headerOptions} />
+
+    <div class="container mx-auto px-4 py-8">
+      <RecipeHero recipe={recipe} client:load />
+      <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-9">
+          <RecipeContent recipe={recipe} client:load>
+            <RecipeTimer steps={recipe.method} client:load />
+          </RecipeContent>
+          <RecipeComments slug={recipe.slug} client:load />
+        </div>
+        <aside class="lg:col-span-3">
+          <div class="sticky top-8">
+            <TableOfContents sections={sections} client:load />
+            <IngredientsList ingredients={recipe.ingredients} servings={recipe.serves} client:load />
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (min-width: 768px) {
+    .hero-image {
+      transform: translateZ(0);
+      will-change: transform;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>

@@ -1,0 +1,98 @@
+---
+import '../styles/globals.css';
+
+interface Props {
+  title?: string;
+}
+
+const { 
+  title = "Direct Admin Dashboard | Fresh Food Weekly"
+} = Astro.props;
+
+// This is a special version of the admin layout that doesn't require authentication
+---
+
+<!doctype html>
+<html lang="en" class="h-full bg-gray-50 dark:bg-gray-900">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body class="h-full">
+    <div class="min-h-full">
+      <!-- Simplified Admin Header - No Navigation -->
+      <header class="bg-white dark:bg-gray-800 shadow">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="flex h-16 justify-between items-center">
+            <div class="flex flex-shrink-0 items-center">
+              <a href="/admin/dashboard-direct" class="text-2xl font-bold text-jamie-orange">
+                FFW Admin (Direct Access)
+              </a>
+            </div>
+            <div>
+              <a href="/" class="text-jamie-orange hover:text-amber-600 font-medium">
+                Return to Website
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <main class="py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <slot />
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --accent: 124, 58, 237;
+    --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
+  }
+  html {
+    font-family: system-ui, sans-serif;
+    background-color: #F6F6F6;
+  }
+  code {
+    font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+      Bitstream Vera Sans Mono, Courier New, monospace;
+  }
+  
+  /* Jamie's orange color */
+  .text-jamie-orange {
+    color: #E3530C;
+  }
+  
+  /* Dark mode adjustments */
+  .dark .dark\:text-jamie-orange {
+    color: #F97316;
+  }
+  
+  .bg-jamie-orange {
+    background-color: #E3530C;
+  }
+  
+  .dark .dark\:bg-jamie-orange {
+    background-color: #F97316;
+  }
+  
+  .border-jamie-orange {
+    border-color: #E3530C;
+  }
+  
+  .dark .dark\:border-jamie-orange {
+    border-color: #F97316;
+  }
+  
+  .hover\:text-jamie-orange:hover {
+    color: #E3530C;
+  }
+  
+  .dark .dark\:hover\:text-jamie-orange:hover {
+    color: #F97316;
+  }
+</style>

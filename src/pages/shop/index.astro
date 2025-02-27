@@ -1,0 +1,184 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navigation from '../../components/Navigation.astro';
+import ProductGrid from '../../components/shop/ProductGrid';
+import FilterSidebar from '../../components/shop/FilterSidebar';
+import CartDrawer from '../../components/shop/CartDrawer';
+import { useStore } from '@nanostores/react';
+import { cartStore } from '../../stores/cartStore';
+import type { Product, Filter, Category } from '../../types/shop';
+
+// Mock products data
+const mockProducts: Product[] = [
+  {
+    id: '1',
+    name: 'Traditional Kadai',
+    description: 'Authentic Indian wok perfect for curries and deep frying, made from high-quality stainless steel',
+    price: 49.99,
+    salePrice: 39.99,
+    image: '/images/placeholder-product.jpg',
+    category: 'cookware',
+    tags: ['kadai', 'traditional', 'indian', 'cooking'],
+    stock: 50,
+    rating: 4.8,
+    reviews: 128,
+    isNew: true
+  },
+  {
+    id: '2',
+    name: 'Masala Dabba Set',
+    description: 'Traditional Indian spice box with 7 compartments and spoon, perfect for organizing your essential spices',
+    price: 29.99,
+    image: '/images/placeholder-product.jpg',
+    category: 'utensils',
+    tags: ['spices', 'masala', 'indian', 'organization'],
+    stock: 75,
+    rating: 4.5,
+    reviews: 89,
+    isNew: false
+  },
+  {
+    id: '3',
+    name: 'Tawa with Handle',
+    description: 'Multi-purpose Indian griddle perfect for making rotis, dosas, and parathas',
+    price: 34.99,
+    salePrice: 29.99,
+    image: '/images/placeholder-product.jpg',
+    category: 'cookware',
+    tags: ['tawa', 'roti', 'dosa', 'indian'],
+    stock: 30,
+    rating: 4.7,
+    reviews: 156,
+    isNew: false
+  }
+];
+
+const categories: Category[] = [
+  {
+    id: 'cookware',
+    name: 'Indian Cookware',
+    description: 'Traditional and modern Indian cooking vessels',
+    image: '/images/placeholder-category.jpg',
+    productCount: 45
+  },
+  {
+    id: 'utensils',
+    name: 'Kitchen Utensils',
+    description: 'Essential tools for Indian cooking',
+    image: '/images/placeholder-category.jpg',
+    productCount: 30
+  }
+];
+
+const initialFilter: Filter = {
+  categories: [],
+  minPrice: 0,
+  maxPrice: 1000,
+  sortBy: 'newest',
+  tags: []
+};
+
+const availableTags = ['indian', 'traditional', 'modern', 'spices', 'cooking', 'kadai', 'tawa', 'masala'];
+---
+
+<Layout title="Kitchen Essentials | AillyCorner">
+  <Navigation />
+  
+  <main class="container mx-auto px-4 py-8 pt-32">
+    <div class="flex flex-col lg:flex-row gap-8">
+      <aside class="w-full lg:w-64">
+        <FilterSidebar
+          client:load
+          categories={categories}
+          currentFilter={initialFilter}
+          onFilterChange={(filter) => {
+            // Handle filter change
+          }}
+          availableTags={availableTags}
+        />
+      </aside>
+
+      <div class="flex-1">
+        <div class="mb-8">
+          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Indian Kitchen Essentials
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400">
+            Discover our curated collection of authentic Indian cookware and kitchen tools
+          </p>
+        </div>
+
+        <div class="mb-6 flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <span class="text-gray-600 dark:text-gray-400">
+              {mockProducts.length} products
+            </span>
+            <select
+              class="form-select rounded-lg border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 dark:bg-gray-800"
+            >
+              <option value="newest">Newest</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating">Best Rating</option>
+            </select>
+          </div>
+        </div>
+
+        <ProductGrid
+          client:load
+          products={mockProducts}
+          onAddToCart={(product) => {
+            // Handle add to cart
+          }}
+        />
+      </div>
+    </div>
+  </main>
+
+  <CartDrawer
+    client:load
+    isOpen={false}
+    onClose={() => {
+      // Handle close
+    }}
+    items={[]}
+    onUpdateQuantity={(itemId, quantity) => {
+      // Handle quantity update
+    }}
+    onRemoveItem={(itemId) => {
+      // Handle remove item
+    }}
+  />
+</Layout>
+
+<style>
+  /* Add any custom styles here */
+</style>
+
+<script>
+  // Client-side JavaScript
+  import { cartStore } from '../../stores/cartStore';
+
+  // Initialize cart store
+  const cart = cartStore;
+
+  // Add to cart handler
+  function handleAddToCart(product) {
+    cart.addItem(product);
+  }
+
+  // Update quantity handler
+  function handleUpdateQuantity(itemId, quantity) {
+    cart.updateQuantity(itemId, quantity);
+  }
+
+  // Remove item handler
+  function handleRemoveItem(itemId) {
+    cart.removeItem(itemId);
+  }
+
+  // Expose functions to window for component access
+  window.handleAddToCart = handleAddToCart;
+  window.handleUpdateQuantity = handleUpdateQuantity;
+  window.handleRemoveItem = handleRemoveItem;
+</script>

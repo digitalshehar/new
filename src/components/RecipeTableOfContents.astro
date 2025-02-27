@@ -1,0 +1,58 @@
+---
+interface Props {
+  hasTips?: boolean;
+  hasNutritionInfo?: boolean;
+}
+
+const { hasTips = false, hasNutritionInfo = false } = Astro.props;
+---
+
+<div class="mb-12 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+  <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Contents</h2>
+  <ul class="space-y-2">
+    <li>
+      <a href="#ingredients" class="text-jamie-orange hover:underline flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+        </svg>
+        Ingredients
+      </a>
+    </li>
+    <li>
+      <a href="#instructions" class="text-jamie-orange hover:underline flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+        </svg>
+        Instructions
+      </a>
+    </li>
+    {hasTips && (
+      <li>
+        <a href="#tips" class="text-jamie-orange hover:underline flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Chef's Tips
+        </a>
+      </li>
+    )}
+    {hasNutritionInfo && (
+      <li>
+        <a href="#nutrition-info" class="text-jamie-orange hover:underline flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          Nutrition Information
+        </a>
+      </li>
+    )}
+    <li>
+      <a href="#dietary-preferences" class="text-jamie-orange hover:underline flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+        </svg>
+        Dietary Preferences
+      </a>
+    </li>
+  </ul>
+</div>

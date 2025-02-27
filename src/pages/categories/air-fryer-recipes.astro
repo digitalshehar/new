@@ -1,0 +1,17 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CategoryLayout from '../../components/CategoryLayout.astro';
+import { collections, recipes } from '../../data/recipes';
+
+const collection = collections.find(c => c.id === 'air-fryer-recipes')!;
+const collectionRecipes = collection.recipes.map(slug => recipes[slug]);
+---
+
+<Layout title={`${collection.title} | AillyCorner`}>
+  <CategoryLayout
+    title={collection.title}
+    description={collection.description}
+    recipes={collectionRecipes}
+    type={collection.type}
+  />
+</Layout>

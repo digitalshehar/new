@@ -1,0 +1,326 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+const { recipe, mode = 'edit' } = Astro.props;
+
+// Create a stringified version of the recipe to pass to client-side JavaScript
+const recipeJSON = JSON.stringify(recipe);
+---
+
+<div class="bg-white dark:bg-gray-900 shadow rounded-lg overflow-hidden">
+  <div class="p-6">
+    <form id="recipe-form" class="space-y-6">
+      <!-- Basic Recipe Info -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Recipe Information</h3>
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <!-- Recipe Title -->
+          <div class="sm:col-span-6">
+            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Recipe Title
+            </label>
+            <div class="mt-1">
+              <input
+                type="text"
+                name="title"
+                id="title"
+                value={recipe.title}
+                required
+                class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              />
+            </div>
+          </div>
+
+          <!-- Recipe Description -->
+          <div class="sm:col-span-6">
+            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Description
+            </label>
+            <div class="mt-1">
+              <textarea
+                id="description"
+                name="description"
+                rows="3"
+                class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              >{recipe.description}</textarea>
+            </div>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              Brief description of your recipe. Will appear in recipe cards and search results.
+            </p>
+          </div>
+
+          <!-- Recipe Times -->
+          <div class="sm:col-span-2">
+            <label for="prepTime" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Prep Time (minutes)
+            </label>
+            <div class="mt-1">
+              <input
+                type="number"
+                name="prepTime"
+                id="prepTime"
+                value={recipe.prepTime}
+                class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              />
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="cookTime" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Cook Time (minutes)
+            </label>
+            <div class="mt-1">
+              <input
+                type="number"
+                name="cookTime"
+                id="cookTime"
+                value={recipe.cookTime}
+                class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              />
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="servings" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Servings
+            </label>
+            <div class="mt-1">
+              <input
+                type="number"
+                name="servings"
+                id="servings"
+                value={recipe.servings}
+                class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              />
+            </div>
+          </div>
+
+          <!-- Recipe Categories -->
+          <div class="sm:col-span-3">
+            <label for="cuisine" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Cuisine
+            </label>
+            <div class="mt-1">
+              <input
+                type="text"
+                name="cuisine"
+                id="cuisine"
+                value={recipe.cuisine}
+                placeholder="e.g. Italian, Mexican, etc."
+                class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              />
+            </div>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="course" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Course
+            </label>
+            <div class="mt-1">
+              <input
+                type="text"
+                name="course"
+                id="course"
+                value={recipe.course}
+                placeholder="e.g. Appetizer, Main Course, etc."
+                class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Instructions</h3>
+        <div id="instructions-container" class="space-y-2">
+          {recipe.instructions?.map((instruction, index) => (
+            <div class="instruction-item flex items-start" data-index={index}>
+              <span class="step-number font-bold mt-1 mr-3 text-gray-600 dark:text-gray-300">{index + 1}.</span>
+              <div class="flex-grow">
+                <textarea
+                  rows="2"
+                  class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                >{instruction}</textarea>
+              </div>
+              <button 
+                type="button"
+                class="remove-instruction ml-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+              >
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          id="add-instruction"
+          class="mt-3 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-jamie-orange bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-jamie-orange dark:border-gray-700 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange"
+        >
+          <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Step
+        </button>
+      </div>
+
+      <!-- Advanced Recipe Management Components -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Advanced Recipe Management</h3>
+        <div id="advanced-recipe-editor" data-recipe={recipeJSON}></div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-5 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex justify-end">
+          <button
+            type="button"
+            class="mr-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            id="cancel-button"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-jamie-orange hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  import React from 'react';
+  import ReactDOM from 'react-dom/client';
+  import AdvancedRecipeEditor from '../admin/AdvancedRecipeEditor';
+
+  // Find the container and get the recipe data
+  const container = document.getElementById('advanced-recipe-editor');
+  const recipeData = JSON.parse(container.dataset.recipe || '{}');
+
+  // Initialize the editor
+  const root = ReactDOM.createRoot(container);
+  
+  root.render(
+    React.createElement(AdvancedRecipeEditor, {
+      recipe: recipeData,
+      onUpdate: (updatedRecipe) => {
+        // This will update the recipe in client-side state
+        console.log('Recipe updated:', updatedRecipe);
+        
+        // You would typically update form fields or hidden inputs here
+        // to ensure the data is submitted with the form
+        document.getElementById('servings').value = updatedRecipe.servings || '';
+        
+        // In a real implementation, you might use a hidden input to store the
+        // structured ingredient data as JSON
+        const hiddenInput = document.getElementById('structured-ingredients') || 
+          (() => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.id = 'structured-ingredients';
+            input.name = 'structured-ingredients';
+            document.getElementById('recipe-form').appendChild(input);
+            return input;
+          })();
+        
+        hiddenInput.value = JSON.stringify(updatedRecipe.ingredients || []);
+        
+        // Same for nutrition info
+        const nutritionInput = document.getElementById('nutrition-info') || 
+          (() => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.id = 'nutrition-info';
+            input.name = 'nutrition-info';
+            document.getElementById('recipe-form').appendChild(input);
+            return input;
+          })();
+        
+        nutritionInput.value = JSON.stringify(updatedRecipe.nutritionInfo || {});
+      }
+    })
+  );
+
+  // Handle form submission
+  document.getElementById('recipe-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // Gather form data
+    const formData = new FormData(e.target);
+    const formJson = Object.fromEntries(formData.entries());
+    
+    // Add structured data from our React components
+    formJson.structuredIngredients = document.getElementById('structured-ingredients')?.value || '[]';
+    formJson.nutritionInfo = document.getElementById('nutrition-info')?.value || '{}';
+    
+    console.log('Submitting recipe:', formJson);
+    
+    // In a real implementation, you would send this to your API
+    alert('Recipe saved successfully!');
+  });
+
+  // Handle instruction management
+  document.getElementById('add-instruction').addEventListener('click', () => {
+    const container = document.getElementById('instructions-container');
+    const newIndex = container.children.length;
+    
+    const instructionItem = document.createElement('div');
+    instructionItem.className = 'instruction-item flex items-start';
+    instructionItem.dataset.index = newIndex;
+    
+    instructionItem.innerHTML = `
+      <span class="step-number font-bold mt-1 mr-3 text-gray-600 dark:text-gray-300">${newIndex + 1}.</span>
+      <div class="flex-grow">
+        <textarea
+          rows="2"
+          class="shadow-sm focus:ring-jamie-orange focus:border-jamie-orange block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+        ></textarea>
+      </div>
+      <button 
+        type="button"
+        class="remove-instruction ml-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+      >
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </button>
+    `;
+    
+    container.appendChild(instructionItem);
+    
+    // Add event listener to the new remove button
+    instructionItem.querySelector('.remove-instruction').addEventListener('click', function() {
+      instructionItem.remove();
+      // Update step numbers
+      updateStepNumbers();
+    });
+  });
+  
+  // Add event listeners to existing remove buttons
+  document.querySelectorAll('.remove-instruction').forEach(button => {
+    button.addEventListener('click', function() {
+      this.closest('.instruction-item').remove();
+      // Update step numbers
+      updateStepNumbers();
+    });
+  });
+  
+  // Function to update step numbers after removal
+  function updateStepNumbers() {
+    document.querySelectorAll('.instruction-item').forEach((item, index) => {
+      item.dataset.index = index;
+      item.querySelector('.step-number').textContent = `${index + 1}.`;
+    });
+  }
+  
+  // Handle cancel button
+  document.getElementById('cancel-button').addEventListener('click', () => {
+    window.location.href = '/admin/recipes';
+  });
+</script>

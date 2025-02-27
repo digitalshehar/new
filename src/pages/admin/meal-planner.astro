@@ -1,0 +1,97 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { recipes } from '../../data/recipes';
+import jwt from 'jsonwebtoken';
+
+// Authentication check
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const token = Astro.cookies.get('auth_token')?.value;
+let isAuthenticated = false;
+let user = null;
+
+if (token) {
+  try {
+    user = jwt.verify(token, JWT_SECRET);
+    isAuthenticated = true;
+  } catch (error) {
+    console.error('JWT verification failed:', error.message);
+  }
+}
+
+// If not authenticated, redirect to login
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+// Convert recipes to format needed by meal planner
+const formattedRecipes = Object.entries(recipes).map(([slug, recipe]) => ({
+  id: slug,
+  title: recipe.title,
+  description: recipe.description,
+  featuredImage: recipe.featuredImage,
+  course: recipe.course,
+  cuisine: recipe.cuisine,
+  prepTime: recipe.prepTime,
+  cookTime: recipe.cookTime
+}));
+
+// In a real app, this would come from a database
+const mockMealPlans = [
+  {
+    id: 'meal_1',
+    date: new Date(),
+    recipes: {
+      breakfast: [],
+      lunch: [],
+      dinner: [formattedRecipes[0]],
+      snacks: []
+    }
+  }
+];
+
+// Serialize the data to pass to client-side JavaScript
+const recipesJson = JSON.stringify(formattedRecipes);
+const mealPlansJson = JSON.stringify(mockMealPlans);
+---
+
+<AdminLayout title="Meal Planner | Admin Dashboard">
+  <div class="py-6">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Meal Planner</h1>
+    </div>
+    
+    <div class="mx-auto max-w-7xl mt-6 px-4 sm:px-6 md:px-8">
+      <div id="meal-planner-container" data-recipes={recipesJson} data-mealplans={mealPlansJson}></div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  import React from 'react';
+  import ReactDOM from 'react-dom/client';
+  import MealPlanningCalendar from '../../components/admin/MealPlanningCalendar';
+
+  // Get the container and data
+  const container = document.getElementById('meal-planner-container');
+  const recipes = JSON.parse(container.dataset.recipes || '[]');
+  const mealPlans = JSON.parse(container.dataset.mealplans || '[]');
+
+  // Initialize the component
+  const root = ReactDOM.createRoot(container);
+  
+  root.render(
+    React.createElement(MealPlanningCalendar, {
+      recipes,
+      initialMealPlans: mealPlans,
+      onSaveMealPlan: (mealPlan) => {
+        console.log('Saved meal plan:', mealPlan);
+        // In a real app, this would send data to your API
+        // Example: fetch('/api/meal-plans', { method: 'POST', body: JSON.stringify(mealPlan) })
+      },
+      onGenerateShoppingList: (startDate, endDate) => {
+        console.log('Generate shopping list for:', startDate, 'to', endDate);
+        // In a real app, this would generate a shopping list based on all meals in the date range
+      }
+    })
+  );
+</script>

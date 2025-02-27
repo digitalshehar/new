@@ -1,0 +1,53 @@
+---
+import { type Recipe } from '../data/recipes';
+import RecipeCard from './RecipeCard.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  recipes: Recipe[];
+  type: 'seasonal' | 'dietary' | 'time-based';
+}
+
+const { title, description, recipes, type } = Astro.props;
+
+const breadcrumbItems = [
+  { label: 'Categories', href: '/categories' },
+  { label: title, href: Astro.url.pathname }
+];
+
+const headerOptions = {
+  bgColor: 'bg-gradient-to-r from-indigo-500 to-purple-600',
+  textColor: 'text-white',
+  overlay: true
+};
+---
+
+<main class="min-h-screen">
+  <Breadcrumbs items={breadcrumbItems} header={headerOptions} />
+  
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto text-center mb-12">
+      <h1 class="text-4xl font-bold mb-4">{title}</h1>
+      <p class="text-lg text-gray-600">{description}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {recipes.map((recipe) => (
+        <RecipeCard
+          title={recipe.title}
+          description={recipe.description}
+          image={recipe.image}
+          slug={recipe.slug}
+          cookingTime={recipe.cookingTime}
+          difficulty={recipe.difficulty}
+          featured={recipe.featured}
+          rating={recipe.rating}
+          totalRatings={recipe.totalRatings}
+          category={recipe.category}
+        />
+      ))}
+    </div>
+  </div>
+</main>

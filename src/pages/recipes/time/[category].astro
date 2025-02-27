@@ -1,0 +1,83 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import RecipeCard from '../../../components/RecipeCard.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs';
+import { recipes } from '../../../data/recipes';
+import type { TimeCategory } from '../../../types/recipe';
+
+export function getStaticPaths() {
+  return [
+    { params: { category: 'under-30-mins' } },
+    { params: { category: 'under-1-hour' } },
+    { params: { category: 'under-2-hours' } },
+    { params: { category: 'over-2-hours' } },
+  ];
+}
+
+const { category } = Astro.params;
+const timeCategoryMap = {
+  'under-30-mins': 'Under 30 mins',
+  'under-1-hour': 'Under 1 hour',
+  'under-2-hours': 'Under 2 hours',
+  'over-2-hours': 'Over 2 hours',
+};
+
+const formattedCategory = timeCategoryMap[category as keyof typeof timeCategoryMap];
+
+const filteredRecipes = Object.values(recipes).filter(recipe => {
+  switch (category) {
+    case 'under-30-mins':
+      return recipe.timeCategory === 'Under 30 mins';
+    case 'under-1-hour':
+      return ['Under 30 mins', 'Under 1 hour'].includes(recipe.timeCategory);
+    case 'under-2-hours':
+      return ['Under 30 mins', 'Under 1 hour', 'Under 1.5 hours', 'Under 2 hours'].includes(recipe.timeCategory);
+    case 'over-2-hours':
+      return ['Over 2 hours', 'Over 3 hours', 'Over 4 hours'].includes(recipe.timeCategory);
+    default:
+      return false;
+  }
+});
+
+const breadcrumbItems = [
+  { label: 'Recipes', href: '/recipes' },
+  { label: 'Cooking Time', href: '/recipes/time' },
+  { label: formattedCategory, href: `/recipes/time/${category}` },
+];
+
+const categoryDescriptions = {
+  'under-30-mins': 'Quick and easy recipes ready in 30 minutes or less',
+  'under-1-hour': 'Perfect recipes for a relaxed weeknight dinner',
+  'under-2-hours': 'Recipes that need a bit more time but are worth the wait',
+  'over-2-hours': 'Special recipes for when you have time to cook something extraordinary',
+};
+---
+
+<Layout title={`${formattedCategory} Recipes`}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Breadcrumbs items={breadcrumbItems} client:load />
+    
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        {formattedCategory} Recipes
+      </h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300">
+        {categoryDescriptions[category as keyof typeof categoryDescriptions]}
+      </p>
+    </div>
+
+    {filteredRecipes.length === 0 ? (
+      <div class="text-center py-12">
+        <p class="text-gray-600 dark:text-gray-400">
+          No recipes found for this time category. Check back later for more recipes!
+        </p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredRecipes.map(recipe => (
+          <RecipeCard recipe={recipe} />
+        ))}
+      </div>
+    )}
+  </div>
+</Layout>

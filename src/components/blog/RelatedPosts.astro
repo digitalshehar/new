@@ -1,0 +1,44 @@
+---
+import type { BlogPost } from '../../types';
+import BlogCard from './BlogCard.astro';
+
+interface Props {
+  currentPost: BlogPost;
+  allPosts: BlogPost[];
+  maxPosts?: number;
+}
+
+const { currentPost, allPosts, maxPosts = 3 } = Astro.props;
+
+// Get related posts based on category and tags
+const relatedPosts = allPosts
+  .filter((post) => post.id !== currentPost.id) // Exclude current post
+  .filter((post) => 
+    post.category === currentPost.category || // Same category
+    (post.tags && currentPost.tags && // Has overlapping tags
+      post.tags.some((tag) => currentPost.tags.includes(tag)))
+  )
+  .slice(0, maxPosts);
+---
+
+{relatedPosts.length > 0 && (
+  <section class="mt-16 pt-16 border-t border-gray-200 dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+        Related Articles
+      </h2>
+      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {relatedPosts.map((post) => (
+          <BlogCard
+            title={post.title}
+            excerpt={post.excerpt}
+            image={post.image}
+            date={post.date}
+            author={post.author}
+            slug={post.slug}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+)}

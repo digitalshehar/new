@@ -1,0 +1,410 @@
+---
+import { recipes } from '../../data/recipes';
+
+// Get current date and determine the start of the week (assuming Sunday is first day)
+const today = new Date();
+const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+const startOfWeek = new Date(today);
+startOfWeek.setDate(today.getDate() - currentDay);
+
+// Days of the week
+const weekdays = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday'
+];
+
+// Mock meal plan data - in a real app, this would come from a database
+const mealPlan = [
+  {
+    day: 'Sunday',
+    meals: [
+      { type: 'Breakfast', recipe: 'blueberry-pancakes', customName: null },
+      { type: 'Lunch', recipe: null, customName: 'Family Lunch Out' },
+      { type: 'Dinner', recipe: 'dal-makhani', customName: null }
+    ]
+  },
+  {
+    day: 'Monday',
+    meals: [
+      { type: 'Breakfast', recipe: null, customName: 'Overnight Oats' },
+      { type: 'Lunch', recipe: 'basket-chaat', customName: null },
+      { type: 'Dinner', recipe: null, customName: 'Leftovers' }
+    ]
+  },
+  {
+    day: 'Tuesday',
+    meals: [
+      { type: 'Breakfast', recipe: null, customName: 'Yogurt & Granola' },
+      { type: 'Lunch', recipe: null, customName: null },
+      { type: 'Dinner', recipe: null, customName: null }
+    ]
+  },
+  {
+    day: 'Wednesday',
+    meals: [
+      { type: 'Breakfast', recipe: null, customName: 'Avocado Toast' },
+      { type: 'Lunch', recipe: null, customName: null },
+      { type: 'Dinner', recipe: 'basket-chaat', customName: null }
+    ]
+  },
+  {
+    day: 'Thursday',
+    meals: [
+      { type: 'Breakfast', recipe: null, customName: null },
+      { type: 'Lunch', recipe: null, customName: null },
+      { type: 'Dinner', recipe: null, customName: null }
+    ]
+  },
+  {
+    day: 'Friday',
+    meals: [
+      { type: 'Breakfast', recipe: null, customName: null },
+      { type: 'Lunch', recipe: null, customName: null },
+      { type: 'Dinner', recipe: null, customName: 'Pizza Night' }
+    ]
+  },
+  {
+    day: 'Saturday',
+    meals: [
+      { type: 'Breakfast', recipe: 'blueberry-pancakes', customName: null },
+      { type: 'Lunch', recipe: null, customName: null },
+      { type: 'Dinner', recipe: null, customName: null }
+    ]
+  }
+];
+
+// Format the date
+function formatDate(date) {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// Get the recipe details by slug
+function getRecipeBySlug(slug) {
+  return slug ? recipes[slug] : null;
+}
+---
+
+<div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+    <div>
+      <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Weekly Meal Plan</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">Plan your meals for the upcoming week</p>
+    </div>
+    <div class="flex space-x-2">
+      <button id="prev-week" class="p-1 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button id="next-week" class="p-1 rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+  
+  <div class="border-t border-gray-200 dark:border-gray-700">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-900">
+          <tr>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">
+              Day
+            </th>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Breakfast
+            </th>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Lunch
+            </th>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Dinner
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {mealPlan.map((day, index) => {
+            const date = new Date(startOfWeek);
+            date.setDate(startOfWeek.getDate() + index);
+            
+            return (
+              <tr class={today.toDateString() === date.toDateString() ? "bg-orange-50 dark:bg-orange-900 dark:bg-opacity-10" : ""}>
+                <td class="py-4 px-4 whitespace-nowrap">
+                  <div class="flex flex-col">
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">{day.day}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{formatDate(date)}</span>
+                  </div>
+                </td>
+                
+                {day.meals.map(meal => {
+                  const recipe = meal.recipe ? getRecipeBySlug(meal.recipe) : null;
+                  
+                  return (
+                    <td class="py-2 px-4">
+                      {recipe ? (
+                        <div class="meal-slot flex items-center p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700 hover:shadow-sm transition-shadow">
+                          <div class="flex-shrink-0 h-10 w-10 mr-3">
+                            <img 
+                              src={recipe.image} 
+                              alt={recipe.title}
+                              class="h-full w-full object-cover rounded"
+                            />
+                          </div>
+                          <div class="min-w-0 flex-1">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{recipe.title}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {recipe.cookingTime} • {recipe.category}
+                            </p>
+                          </div>
+                          <div class="ml-2 flex-shrink-0 flex">
+                            <a 
+                              href={`/recipes/${recipe.slug}`}
+                              class="text-jamie-orange hover:text-opacity-90"
+                              aria-label={`View ${recipe.title} recipe`}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                              </svg>
+                            </a>
+                          </div>
+                        </div>
+                      ) : meal.customName ? (
+                        <div class="meal-slot flex items-center p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
+                          <div class="flex-shrink-0 h-10 w-10 mr-3 flex items-center justify-center bg-gray-200 dark:bg-gray-600 rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                          </div>
+                          <div class="min-w-0 flex-1">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{meal.customName}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              Custom meal
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <button 
+                          class="meal-slot empty-meal flex items-center justify-center w-full h-12 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-400 dark:text-gray-500 hover:border-jamie-orange hover:text-jamie-orange transition-colors"
+                          data-day={day.day}
+                          data-type={meal.type}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </button>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for adding a meal -->
+<div id="add-meal-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white" id="modal-title">Add Meal</h3>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <form id="add-meal-form">
+        <input type="hidden" id="meal-day" name="day" value="">
+        <input type="hidden" id="meal-type" name="type" value="">
+        
+        <div class="mb-4">
+          <div class="flex items-center justify-between">
+            <label for="meal-option" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Meal Option</label>
+          </div>
+          <select id="meal-option" name="mealOption" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:outline-none focus:ring-jamie-orange focus:border-jamie-orange sm:text-sm rounded-md dark:text-white">
+            <option value="recipe">Select a Recipe</option>
+            <option value="custom">Custom Meal</option>
+          </select>
+        </div>
+        
+        <div id="recipe-select-container" class="mb-4">
+          <label for="recipe-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Choose Recipe</label>
+          <select id="recipe-select" name="recipe" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:outline-none focus:ring-jamie-orange focus:border-jamie-orange sm:text-sm rounded-md dark:text-white">
+            <option value="">Select a recipe</option>
+            {Object.entries(recipes).map(([slug, recipe]) => (
+              <option value={slug}>{recipe.title}</option>
+            ))}
+          </select>
+        </div>
+        
+        <div id="custom-meal-container" class="mb-4 hidden">
+          <label for="custom-meal-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Custom Meal Name</label>
+          <input 
+            type="text" 
+            id="custom-meal-name" 
+            name="customName" 
+            class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md shadow-sm focus:border-jamie-orange focus:ring focus:ring-jamie-orange focus:ring-opacity-50 dark:text-white"
+            placeholder="e.g. Family Dinner Out"
+          >
+        </div>
+      </form>
+    </div>
+    <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200 dark:border-gray-700">
+      <button 
+        type="button" 
+        id="save-meal-button"
+        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-jamie-orange text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange sm:ml-3 sm:w-auto sm:text-sm"
+      >
+        Save
+      </button>
+      <button 
+        type="button" 
+        id="close-modal-button"
+        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Elements
+  const modal = document.getElementById('add-meal-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const mealForm = document.getElementById('add-meal-form');
+  const mealDay = document.getElementById('meal-day');
+  const mealType = document.getElementById('meal-type');
+  const mealOption = document.getElementById('meal-option');
+  const recipeContainer = document.getElementById('recipe-select-container');
+  const customMealContainer = document.getElementById('custom-meal-container');
+  const recipeSelect = document.getElementById('recipe-select');
+  const customMealName = document.getElementById('custom-meal-name');
+  const saveButton = document.getElementById('save-meal-button');
+  const closeButton = document.getElementById('close-modal-button');
+  const emptyMeals = document.querySelectorAll('.empty-meal');
+  
+  // Toggle meal option containers based on selection
+  mealOption.addEventListener('change', function() {
+    if (this.value === 'recipe') {
+      recipeContainer.classList.remove('hidden');
+      customMealContainer.classList.add('hidden');
+    } else {
+      recipeContainer.classList.add('hidden');
+      customMealContainer.classList.remove('hidden');
+    }
+  });
+  
+  // Open modal when clicking on an empty meal slot
+  emptyMeals.forEach(meal => {
+    meal.addEventListener('click', function() {
+      const day = this.getAttribute('data-day');
+      const type = this.getAttribute('data-type');
+      
+      // Set hidden form values
+      mealDay.value = day;
+      mealType.value = type;
+      
+      // Update modal title
+      modalTitle.textContent = `Add ${type} for ${day}`;
+      
+      // Reset form
+      mealOption.value = 'recipe';
+      recipeSelect.value = '';
+      customMealName.value = '';
+      recipeContainer.classList.remove('hidden');
+      customMealContainer.classList.add('hidden');
+      
+      // Show modal
+      modal.classList.remove('hidden');
+    });
+  });
+  
+  // Close modal
+  closeButton.addEventListener('click', function() {
+    modal.classList.add('hidden');
+  });
+  
+  // Close modal when clicking outside
+  modal.addEventListener('click', function(event) {
+    if (event.target === modal) {
+      modal.classList.add('hidden');
+    }
+  });
+  
+  // Save meal (in a real app, this would save to a database)
+  saveButton.addEventListener('click', function() {
+    const day = mealDay.value;
+    const type = mealType.value;
+    const option = mealOption.value;
+    
+    let mealData;
+    if (option === 'recipe') {
+      const recipeSlug = recipeSelect.value;
+      if (!recipeSlug) {
+        alert('Please select a recipe');
+        return;
+      }
+      
+      const recipeOption = recipeSelect.options[recipeSelect.selectedIndex];
+      const recipeName = recipeOption.textContent;
+      
+      mealData = { type, recipe: recipeSlug, customName: null, recipeName };
+    } else {
+      const name = customMealName.value;
+      if (!name) {
+        alert('Please enter a custom meal name');
+        return;
+      }
+      
+      mealData = { type, recipe: null, customName: name };
+    }
+    
+    // In a real app, you would save this data to a database
+    console.log('Saving meal:', { day, ...mealData });
+    
+    // Show a success notification
+    showNotification(`${type} for ${day} has been added to your meal plan`);
+    
+    // Close the modal
+    modal.classList.add('hidden');
+  });
+  
+  // Notification function
+  function showNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-10 opacity-0 transition-all duration-500 z-50';
+    notification.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+      notification.classList.remove('translate-y-10', 'opacity-0');
+    }, 100);
+    
+    // Animate out and remove
+    setTimeout(() => {
+      notification.classList.add('translate-y-10', 'opacity-0');
+      setTimeout(() => {
+        notification.remove();
+      }, 500);
+    }, 3000);
+  }
+  
+  // Week navigation (in a real app, this would load different weeks)
+  document.getElementById('prev-week').addEventListener('click', function() {
+    showNotification('Previous week loaded');
+  });
+  
+  document.getElementById('next-week').addEventListener('click', function() {
+    showNotification('Next week loaded');
+  });
+</script>

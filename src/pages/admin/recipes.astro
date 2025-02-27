@@ -1,0 +1,379 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { recipes } from '../../data/recipes';
+import jwt from 'jsonwebtoken';
+import RecipeStats from '../../components/admin/RecipeStats';
+import AdminRecipeCard from '../../components/admin/AdminRecipeCard';
+import RecipeFilters from '../../components/admin/RecipeFilters';
+import RecipeAnalytics from '../../components/admin/RecipeAnalytics';
+import BatchOperations from '../../components/admin/BatchOperations';
+
+// Convert the recipes object to an array for display
+const recipesList = Object.values(recipes);
+
+// Get unique categories and difficulties for filters
+const categories = [...new Set(recipesList.map((recipe) => recipe.category))];
+const difficulties = [...new Set(recipesList.map((recipe) => recipe.difficulty))];
+
+// Mock tags data (in production this would come from a database)
+const tags = [
+  { id: "tag1", name: "Vegetarian", color: "green" },
+  { id: "tag2", name: "Spicy", color: "red" },
+  { id: "tag3", name: "Quick", color: "blue" },
+  { id: "tag4", name: "Dessert", color: "pink" },
+  { id: "tag5", name: "Breakfast", color: "yellow" },
+  { id: "tag6", name: "Gluten-Free", color: "purple" },
+  { id: "tag7", name: "Low-Carb", color: "indigo" },
+];
+
+// Assign mock tags to recipes (in production this would come from your database)
+const recipesWithTags = recipesList.map((recipe, index) => ({
+  ...recipe,
+  tags: index % 3 === 0 ? ["tag1", "tag3"] : 
+        index % 3 === 1 ? ["tag2", "tag4", "tag7"] : 
+        ["tag5", "tag6"]
+}));
+
+// Authentication check
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const token = Astro.cookies.get('auth_token')?.value;
+let isAuthenticated = false;
+let user = null;
+
+if (token) {
+  try {
+    user = jwt.verify(token, JWT_SECRET);
+    isAuthenticated = true;
+    console.log('User authenticated:', user.username);
+  } catch (error) {
+    console.error('JWT verification failed:', error.message);
+  }
+}
+
+// If not authenticated, redirect to login
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+---
+
+<AdminLayout title="Recipes | Admin Dashboard">
+  <div class="py-6 motion-container">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white motion-intersect" 
+         data-motion-direction="left">Recipes Management</h1>
+    </div>
+
+    <!-- Recipe Statistics Component -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 mt-8 motion-intersect">
+      <RecipeStats client:load />
+    </div>
+    
+    <!-- Recipe Analytics Component -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 mt-8 motion-intersect">
+      <RecipeAnalytics client:load recipes={recipesWithTags} />
+    </div>
+    
+    <div class="mx-auto max-w-7xl mt-8 px-4 sm:px-6 md:px-8">
+      <div class="flex justify-between items-center mb-6 motion-intersect" data-motion-direction="right">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-white">Recipe List</h2>
+        <div>
+          <a
+            href="/admin/recipes/new"
+            class="btn-pulse inline-flex items-center rounded-md border border-transparent bg-jamie-orange px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-jamie-orange focus:ring-offset-2 transition-all duration-300 hover:scale-105"
+          >
+            Add New Recipe
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recipe Filters Component -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 mb-6 motion-container">
+      <RecipeFilters 
+        client:load 
+        onFilterChange={(filters) => {}} 
+        categories={categories} 
+        difficulties={difficulties}
+      />
+    </div>
+
+    <!-- Mobile view (cards) -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4 motion-container">
+        {recipesWithTags.map((recipe, index) => (
+          <div class="motion-item" data-index={index}>
+            <AdminRecipeCard 
+              client:load 
+              recipe={recipe} 
+              onEdit={(slug) => {}} 
+              onDelete={(slug, title) => {}} 
+              onToggleSelect={(recipe) => {}}
+              tags={tags}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Desktop view (table) -->
+    <div class="hidden lg:block motion-intersect" data-motion-once="true">
+      <div class="mt-4 flex flex-col motion-container">
+        <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+              <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          class="h-4 w-4 rounded border-gray-300 text-jamie-orange focus:ring-jamie-orange"
+                          id="select-all-recipes"
+                        />
+                        <label for="select-all-recipes" class="sr-only">Select All</label>
+                      </div>
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      Recipe
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      Category
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      Tags
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      Cook Time
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                      Difficulty
+                    </th>
+                    <th scope="col" class="relative px-3 py-3.5">
+                      <span class="sr-only">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
+                  {recipesWithTags.map((recipe, index) => (
+                    <tr class="motion-item hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" data-index={index}>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        <input
+                          type="checkbox"
+                          class="recipe-checkbox h-4 w-4 rounded border-gray-300 text-jamie-orange focus:ring-jamie-orange"
+                          data-recipe-slug={recipe.slug}
+                        />
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm font-medium">
+                        <div class="flex items-center">
+                          <span class="text-gray-900 dark:text-white">{recipe.title}</span>
+                          
+                          {/* Status Indicator */}
+                          <span 
+                            class={`ml-2 inline-flex h-2 w-2 flex-shrink-0 rounded-full ${
+                              recipe.isPublished 
+                                ? 'bg-green-500' 
+                                : recipe.scheduledDate 
+                                  ? 'bg-blue-500' 
+                                  : 'bg-gray-300 dark:bg-gray-600'
+                            }`}
+                            title={
+                              recipe.isPublished 
+                                ? 'Published' 
+                                : recipe.scheduledDate 
+                                  ? `Scheduled for ${recipe.scheduledDate}` 
+                                  : 'Draft'
+                            }
+                          />
+                        </div>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        <span class="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 px-2 py-1 rounded">
+                          {recipe.category}
+                        </span>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex flex-wrap gap-1">
+                          {recipe.tags && tags.filter(tag => recipe.tags.includes(tag.id)).map(tag => (
+                            <span 
+                              class={`inline-block px-2 py-0.5 rounded-full text-xs font-medium
+                                    bg-${tag.color}-100 text-${tag.color}-800 
+                                    dark:bg-${tag.color}-900 dark:text-${tag.color}-200`}
+                            >
+                              {tag.name}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        {recipe.cookingTime}
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        <span
+                          class={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+                            recipe.difficulty === 'Easy'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                              : recipe.difficulty === 'Medium'
+                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                              : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                          }`}
+                        >
+                          {recipe.difficulty}
+                        </span>
+                      </td>
+                      <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                        <div class="flex justify-end space-x-2">
+                          <a 
+                            href={`/admin/recipes/${recipe.slug}/edit`}
+                            class="btn-pulse text-jamie-orange hover:text-amber-700 transition-colors"
+                          >
+                            Edit
+                          </a>
+                          <button 
+                            data-recipe-slug={recipe.slug}
+                            data-recipe-title={recipe.title}
+                            class="delete-recipe btn-pulse text-red-600 hover:text-red-900 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Batch Operations Component -->
+    <div class="mx-auto max-w-7xl">
+      <BatchOperations 
+        client:load 
+        selectedRecipes={[]} 
+        onBatchDelete={() => {}} 
+        onBatchCategory={() => {}} 
+        onBatchExport={() => {}} 
+        onClearSelection={() => {}} 
+        categories={categories}
+      />
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  // Handle recipe deletion
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('.delete-recipe');
+    
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const slug = e.target.dataset.recipeSlug;
+        const title = e.target.dataset.recipeTitle;
+        
+        if (confirm(`Are you sure you want to delete "${title}"?`)) {
+          // In a real application, you'd send a DELETE request to your API
+          console.log(`Deleting recipe: ${title} (${slug})`);
+          
+          // Adding visual feedback - find the row and fade it out
+          const tableRow = e.target.closest('tr');
+          if (tableRow) {
+            // Apply fade out animation to the table row
+            tableRow.style.transition = 'opacity 0.5s, transform 0.5s';
+            tableRow.style.opacity = '0';
+            tableRow.style.transform = 'translateX(20px)';
+            
+            // Remove after animation completes
+            setTimeout(() => {
+              tableRow.remove();
+            }, 500);
+          }
+          
+          // For mobile view (cards)
+          const recipeCards = document.querySelectorAll('.card-3d');
+          recipeCards.forEach(card => {
+            // Find the delete button inside the card
+            const cardDeleteBtn = card.querySelector('.delete-recipe');
+            if (cardDeleteBtn && cardDeleteBtn.dataset.recipeSlug === slug) {
+              // Apply fade out animation to the card
+              card.style.transition = 'opacity 0.5s, transform 0.5s';
+              card.style.opacity = '0';
+              card.style.transform = 'translateY(-20px)';
+              
+              // Remove after animation completes
+              setTimeout(() => {
+                card.remove();
+              }, 500);
+            }
+          });
+        }
+      });
+    });
+    
+    // Table checkboxes for batch operations
+    const selectAllCheckbox = document.getElementById('select-all-recipes');
+    const recipeCheckboxes = document.querySelectorAll('.recipe-checkbox');
+    
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', () => {
+        const isChecked = selectAllCheckbox.checked;
+        recipeCheckboxes.forEach(checkbox => {
+          checkbox.checked = isChecked;
+        });
+        
+        // Custom event to notify React components about selection changes
+        const event = new CustomEvent('recipe-selection-change', {
+          detail: {
+            selectedSlugs: isChecked 
+              ? Array.from(recipeCheckboxes).map(cb => cb.dataset.recipeSlug)
+              : []
+          }
+        });
+        document.dispatchEvent(event);
+      });
+    }
+    
+    // Individual checkbox handlers
+    recipeCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        // Check if all checkboxes are selected to update the "select all" checkbox
+        const allChecked = Array.from(recipeCheckboxes).every(cb => cb.checked);
+        const anyChecked = Array.from(recipeCheckboxes).some(cb => cb.checked);
+        
+        if (selectAllCheckbox) {
+          selectAllCheckbox.checked = allChecked;
+          selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+        }
+        
+        // Custom event to notify React components about selection changes
+        const selectedSlugs = Array.from(recipeCheckboxes)
+          .filter(cb => cb.checked)
+          .map(cb => cb.dataset.recipeSlug);
+          
+        const event = new CustomEvent('recipe-selection-change', {
+          detail: { selectedSlugs }
+        });
+        document.dispatchEvent(event);
+      });
+    });
+    
+    // Animation for motion elements
+    const motionContainer = document.querySelectorAll('.motion-container');
+    motionContainer.forEach(container => {
+      const items = container.querySelectorAll('.motion-item');
+      items.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        item.dataset.index = index.toString();
+        
+        setTimeout(() => {
+          item.style.opacity = '1';
+          item.style.transform = 'translateY(0)';
+        }, 100 + index * 50);
+      });
+    });
+  });
+</script>

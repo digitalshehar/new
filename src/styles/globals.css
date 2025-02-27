@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --jamie-orange: #FF642D;
+  --jamie-blue: #1E3D59;
+  --jamie-cream: #F7F7F7;
+}
+
+.text-jamie-orange {
+  color: var(--jamie-orange);
+}
+
+.text-jamie-blue {
+  color: var(--jamie-blue);
+}
+
+.bg-jamie-orange {
+  background-color: var(--jamie-orange);
+}
+
+.bg-jamie-blue {
+  background-color: var(--jamie-blue);
+}
+
+.bg-jamie-cream {
+  background-color: var(--jamie-cream);
+}
+
+.dark .dark\:text-jamie-orange {
+  color: var(--jamie-orange);
+}
+
+.dark .dark\:text-jamie-blue {
+  color: var(--jamie-blue);
+}
+
+.dark .dark\:bg-jamie-orange {
+  background-color: var(--jamie-orange);
+}
+
+.dark .dark\:bg-jamie-blue {
+  background-color: var(--jamie-blue);
+}
+
+.dark .dark\:bg-jamie-cream {
+  background-color: var(--jamie-cream);
+}

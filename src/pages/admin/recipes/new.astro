@@ -1,0 +1,256 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import RecipeForm from '../../../components/admin/RecipeForm.astro';
+import jwt from 'jsonwebtoken';
+
+// Authentication check
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const token = Astro.cookies.get('auth_token')?.value;
+let isAuthenticated = false;
+let user = null;
+
+if (token) {
+  try {
+    user = jwt.verify(token, JWT_SECRET);
+    isAuthenticated = true;
+    console.log('User authenticated:', user.username);
+  } catch (error) {
+    console.error('JWT verification failed:', error.message);
+  }
+}
+
+// If not authenticated, redirect to login
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+if (Astro.request.method === 'POST') {
+  try {
+    const data = await Astro.request.formData();
+    const recipeData = JSON.parse(data.get('recipe') as string);
+    
+    // Handle image upload
+    const image = data.get('image') as File;
+    if (image) {
+      const imagePath = join(process.cwd(), 'public', 'images', 'recipes', image.name);
+      await writeFile(imagePath, Buffer.from(await image.arrayBuffer()));
+      recipeData.image = `/images/recipes/${image.name}`;
+    }
+
+    // Create recipe file
+    const slug = recipeData.title.toLowerCase().replace(/\s+/g, '-');
+    const content = matter.stringify('', recipeData);
+    const recipePath = join(process.cwd(), 'src', 'pages', 'recipes', `${slug}.astro`);
+    await writeFile(recipePath, content);
+
+    return Astro.redirect('/admin');
+  } catch (error) {
+    console.error('Error creating recipe:', error);
+  }
+}
+---
+
+<AdminLayout title="Add New Recipe | Admin Dashboard">
+  <div class="py-6">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+      <div class="md:flex md:items-center md:justify-between">
+        <div class="min-w-0 flex-1">
+          <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Add New Recipe</h1>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Create a new recipe to add to your collection.</p>
+        </div>
+        <div class="mt-4 flex md:mt-0">
+          <a href="/admin/recipes" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Recipes
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mx-auto max-w-7xl mt-6 px-4 sm:px-6 md:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recipe Form -->
+        <div class="lg:col-span-2">
+          <RecipeForm mode="create" />
+        </div>
+        
+        <!-- Recipe Publishing Panel -->
+        <div class="lg:col-span-1">
+          <div id="recipe-publishing-container" data-recipe-slug="new" data-recipe-title="New Recipe"></div>
+          
+          <!-- Spacer - only on desktop -->
+          <div class="mt-8 hidden lg:block"></div>
+          
+          <!-- Quick Actions Panel -->
+          <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg mt-8">
+            <div class="px-4 py-5 sm:p-6">
+              <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white">Quick Actions</h3>
+              <div class="mt-5 grid grid-cols-1 gap-4">
+                <button 
+                  id="preview-recipe-button"
+                  type="button"
+                  class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-white bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange"
+                >
+                  <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Preview Recipe
+                </button>
+                
+                <button 
+                  type="button"
+                  id="clear-form-button"
+                  class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-white bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange"
+                >
+                  <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Reset Form
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<!-- Recipe Preview Container - Will be populated by React -->
+<div id="recipe-preview-container"></div>
+
+<script>
+  // Import from other files
+  import React from 'react';
+  import ReactDOM from 'react-dom/client';
+  import RecipePublishing from '../../../components/admin/RecipePublishing';
+  import RecipePreview from '../../../components/admin/RecipePreview';
+  
+  // Handle form reset
+  document.getElementById('clear-form-button')?.addEventListener('click', () => {
+    if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
+      const form = document.getElementById('recipeForm') as HTMLFormElement;
+      if (form) {
+        form.reset();
+      }
+    }
+  });
+  
+  // Mount the Recipe Publishing component 
+  const publishingContainer = document.getElementById('recipe-publishing-container');
+  if (publishingContainer) {
+    const root = ReactDOM.createRoot(publishingContainer);
+    root.render(
+      React.createElement(RecipePublishing, {
+        slug: 'new',
+        title: 'New Recipe',
+        initialStatus: 'draft',
+        onPublish: (data) => {
+          console.log('Publishing data:', data);
+          // In a real app, you would use this data when submitting the form
+          
+          // Now trigger form submission
+          if (data.status === 'published') {
+            // If publishing immediately, submit the form
+            const form = document.getElementById('recipeForm') as HTMLFormElement;
+            if (form) {
+              // Add publishing data to form
+              const publishingDataInput = document.createElement('input');
+              publishingDataInput.type = 'hidden';
+              publishingDataInput.name = 'publishingData';
+              publishingDataInput.value = JSON.stringify(data);
+              form.appendChild(publishingDataInput);
+              
+              // Submit the form
+              form.submit();
+            }
+          } else {
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 animate-fade-in';
+            notification.textContent = `Recipe saved as ${data.status}!`;
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+              notification.classList.add('animate-fade-out');
+              setTimeout(() => notification.remove(), 500);
+            }, 3000);
+          }
+        },
+        onPreview: () => {
+          // Trigger the preview button click to open the preview modal
+          document.getElementById('preview-recipe-button')?.click();
+        }
+      })
+    );
+  }
+  
+  // Handle recipe preview
+  document.getElementById('preview-recipe-button')?.addEventListener('click', () => {
+    // Get form data
+    const form = document.getElementById('recipeForm') as HTMLFormElement;
+    if (!form) return;
+    
+    // Create a FormData object to get all form values
+    const formData = new FormData(form);
+    
+    // Create a recipe object from form data
+    const recipe = {
+      title: formData.get('title') as string || 'Untitled Recipe',
+      description: formData.get('description') as string || '',
+      image: formData.get('image') as string || undefined,
+      prepTime: formData.get('prepTime') as string || undefined,
+      cookingTime: formData.get('cookingTime') as string || undefined,
+      totalTime: formData.get('totalTime') as string || undefined,
+      serves: formData.get('serves') as string || undefined,
+      difficulty: formData.get('difficulty') as string || undefined,
+      // Simple conversion of textarea values to arrays
+      ingredients: (formData.get('ingredients') as string || '').split('\n').filter(line => line.trim()),
+      instructions: (formData.get('instructions') as string || '').split('\n').filter(line => line.trim()),
+      category: formData.get('category') as string || undefined,
+      notes: (formData.get('notes') as string || '').split('\n').filter(line => line.trim()),
+      tips: (formData.get('tips') as string || '').split('\n').filter(line => line.trim()),
+    };
+    
+    // Get container for preview
+    const previewContainer = document.getElementById('recipe-preview-container');
+    if (!previewContainer) return;
+    
+    // Mount the RecipePreview component
+    const root = ReactDOM.createRoot(previewContainer);
+    root.render(
+      React.createElement(RecipePreview, {
+        recipe,
+        onClose: () => {
+          // Clear the preview container when closed
+          ReactDOM.createRoot(previewContainer).render(null);
+        }
+      })
+    );
+  });
+</script>
+
+<style>
+  /* Animations for notifications and modals */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(10px); }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  
+  .animate-fade-out {
+    animation: fadeOut 0.3s ease-in forwards;
+  }
+</style>

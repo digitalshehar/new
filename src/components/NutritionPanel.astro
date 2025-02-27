@@ -1,0 +1,95 @@
+---
+interface Props {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+}
+
+const { calories, protein, carbs, fat, fiber } = Astro.props;
+
+const nutrients = [
+  { name: 'Calories', value: calories, unit: 'kcal' },
+  { name: 'Protein', value: protein, unit: 'g' },
+  { name: 'Carbohydrates', value: carbs, unit: 'g' },
+  { name: 'Fat', value: fat, unit: 'g' },
+  { name: 'Fiber', value: fiber, unit: 'g' }
+];
+
+// Calculate percentage of daily values (based on 2000 calorie diet)
+const dailyValues = {
+  calories: 2000,
+  protein: 50,
+  carbs: 275,
+  fat: 78,
+  fiber: 28
+};
+
+---
+
+<div class="bg-white rounded-lg shadow-md p-6" id="nutrition">
+  <h3 class="text-lg font-semibold text-jamie-blue mb-4">Nutrition Information</h3>
+  <div class="space-y-4">
+    {nutrients.map(nutrient => {
+      const percentage = Math.round((nutrient.value / dailyValues[nutrient.name.toLowerCase() as keyof typeof dailyValues]) * 100);
+      
+      return (
+        <div>
+          <div class="flex justify-between text-sm text-gray-600 mb-1">
+            <span>{nutrient.name}</span>
+            <span class="font-medium">{nutrient.value}{nutrient.unit}</span>
+          </div>
+          <div class="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              class="absolute inset-y-0 left-0 bg-jamie-orange rounded-full transition-all duration-500"
+              style={`width: ${percentage}%`}
+            >
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 text-right mt-1">
+            {percentage}% Daily Value*
+          </div>
+        </div>
+      );
+    })}
+  </div>
+  <p class="text-xs text-gray-500 mt-4">
+    * Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your calorie needs.
+  </p>
+</div>
+
+<script>
+  // Animate nutrition bars on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-nutrition');
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+
+  document.querySelectorAll('.bg-jamie-orange').forEach(bar => {
+    observer.observe(bar);
+  });
+</script>
+
+<style>
+  .animate-nutrition {
+    animation: grow 1s ease-out forwards;
+  }
+
+  @keyframes grow {
+    from {
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+    to {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+</style>

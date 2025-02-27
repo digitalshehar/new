@@ -1,0 +1,59 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import RecipeCard from '../../../components/RecipeCard.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs';
+import { recipes } from '../../../data/recipes';
+import type { DietaryPreference } from '../../../types/recipe';
+
+export function getStaticPaths() {
+  return [
+    { params: { preference: 'vegetarian' } },
+    { params: { preference: 'vegan' } },
+    { params: { preference: 'gluten-free' } },
+  ];
+}
+
+const { preference } = Astro.params;
+const formattedPreference = preference!.split('-').map(word => 
+  word.charAt(0).toUpperCase() + word.slice(1)
+).join(' ');
+
+const filteredRecipes = Object.values(recipes).filter(recipe =>
+  recipe.dietaryPreferences.includes(preference as DietaryPreference)
+);
+
+const breadcrumbItems = [
+  { label: 'Recipes', href: '/recipes' },
+  { label: 'Dietary Preferences', href: '/recipes/dietary' },
+  { label: formattedPreference, href: `/recipes/dietary/${preference}` },
+];
+---
+
+<Layout title={`${formattedPreference} Recipes`}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Breadcrumbs items={breadcrumbItems} client:load />
+    
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        {formattedPreference} Recipes
+      </h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300">
+        Discover delicious {preference} recipes that match your dietary preferences
+      </p>
+    </div>
+
+    {filteredRecipes.length === 0 ? (
+      <div class="text-center py-12">
+        <p class="text-gray-600 dark:text-gray-400">
+          No {preference} recipes found. Check back later for more recipes!
+        </p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredRecipes.map(recipe => (
+          <RecipeCard recipe={recipe} />
+        ))}
+      </div>
+    )}
+  </div>
+</Layout>

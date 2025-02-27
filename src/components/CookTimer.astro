@@ -1,0 +1,151 @@
+---
+interface Props {
+  duration?: string;
+}
+
+const { duration } = Astro.props;
+---
+
+<div class="cook-timer bg-white rounded-lg shadow-lg p-4" data-duration={duration}>
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold">Cook Timer</h3>
+    <button class="reset-timer text-gray-500 hover:text-gray-700">
+      <span class="sr-only">Reset Timer</span>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  </div>
+  
+  <div class="timer-display text-4xl font-mono text-center mb-4">00:00</div>
+  
+  <div class="flex justify-center space-x-2">
+    <button class="start-timer bg-jamie-blue text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">
+      Start
+    </button>
+    <button class="pause-timer bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors" disabled>
+      Pause
+    </button>
+  </div>
+
+  <div class="mt-4">
+    <label class="block text-sm font-medium text-gray-700 mb-1">Quick presets</label>
+    <div class="grid grid-cols-3 gap-2">
+      <button class="preset-timer bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm hover:bg-gray-200" data-time="300">
+        5m
+      </button>
+      <button class="preset-timer bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm hover:bg-gray-200" data-time="600">
+        10m
+      </button>
+      <button class="preset-timer bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm hover:bg-gray-200" data-time="900">
+        15m
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  class CookTimer extends HTMLElement {
+    timer: number = 0;
+    interval: number | null = null;
+    display: HTMLElement | null = null;
+    startBtn: HTMLButtonElement | null = null;
+    pauseBtn: HTMLButtonElement | null = null;
+
+    constructor() {
+      super();
+      this.initializeTimer();
+    }
+
+    initializeTimer() {
+      this.display = this.querySelector('.timer-display');
+      this.startBtn = this.querySelector('.start-timer');
+      this.pauseBtn = this.querySelector('.pause-timer');
+
+      this.startBtn?.addEventListener('click', () => this.startTimer());
+      this.pauseBtn?.addEventListener('click', () => this.pauseTimer());
+      this.querySelector('.reset-timer')?.addEventListener('click', () => this.resetTimer());
+
+      // Initialize preset buttons
+      this.querySelectorAll('.preset-timer').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const time = parseInt((e.currentTarget as HTMLElement).dataset.time || '0');
+          this.timer = time;
+          this.updateDisplay();
+        });
+      });
+    }
+
+    startTimer() {
+      if (!this.interval && this.timer > 0) {
+        this.interval = setInterval(() => {
+          this.timer--;
+          this.updateDisplay();
+          
+          if (this.timer <= 0) {
+            this.stopTimer();
+            this.notifyUser();
+          }
+        }, 1000);
+
+        this.startBtn!.disabled = true;
+        this.pauseBtn!.disabled = false;
+      }
+    }
+
+    pauseTimer() {
+      if (this.interval) {
+        clearInterval(this.interval);
+        this.interval = null;
+        this.startBtn!.disabled = false;
+        this.pauseBtn!.disabled = true;
+      }
+    }
+
+    stopTimer() {
+      this.pauseTimer();
+      this.timer = 0;
+      this.updateDisplay();
+    }
+
+    resetTimer() {
+      this.stopTimer();
+      const duration = this.dataset.duration;
+      if (duration) {
+        const [minutes, seconds] = duration.split(':').map(Number);
+        this.timer = (minutes * 60) + seconds;
+      } else {
+        this.timer = 0;
+      }
+      this.updateDisplay();
+    }
+
+    updateDisplay() {
+      if (this.display) {
+        const minutes = Math.floor(this.timer / 60);
+        const seconds = this.timer % 60;
+        this.display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }
+
+    notifyUser() {
+      // Play sound
+      const audio = new Audio('/sounds/timer-done.mp3');
+      audio.play();
+
+      // Show notification if supported
+      if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification('Timer Complete!', {
+              body: 'Your cooking timer has finished.',
+              icon: '/icons/timer-icon.png'
+            });
+          }
+        });
+      }
+    }
+  }
+
+  customElements.define('cook-timer', CookTimer);
+</script>

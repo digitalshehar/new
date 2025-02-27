@@ -1,0 +1,251 @@
+---
+interface Props {
+  recipe: {
+    title: string;
+    ingredients: {
+      item: string;
+      amount: string;
+      unit: string;
+    }[];
+    instructions: string[];
+    prepTime: number;
+    cookTime: number;
+  };
+}
+
+const { recipe } = Astro.props;
+---
+
+<div class="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-hidden touch-scroll" id="cooking-mode">
+  <!-- Header -->
+  <header class="sticky top-0 bg-white dark:bg-gray-900 shadow-sm z-10">
+    <div class="flex items-center justify-between p-4">
+      <button 
+        id="exit-cooking-mode"
+        class="text-jamie-blue dark:text-jamie-accent-blue hover:text-jamie-orange transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span class="sr-only">Exit cooking mode</span>
+      </button>
+      <h1 class="text-lg font-semibold text-center flex-1 px-4 truncate">{recipe.title}</h1>
+      <button 
+        id="toggle-timer"
+        class="text-jamie-blue dark:text-jamie-accent-blue hover:text-jamie-orange transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="sr-only">Toggle timer</span>
+      </button>
+    </div>
+    
+    <!-- Progress bar -->
+    <div class="h-1 bg-gray-200 dark:bg-gray-700">
+      <div class="h-full bg-jamie-blue dark:bg-jamie-accent-blue transition-all duration-300" id="progress-bar" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- Timer modal -->
+  <div 
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden"
+    id="timer-modal"
+  >
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm">
+      <h3 class="text-lg font-semibold mb-4">Set Timer</h3>
+      <div class="flex space-x-4 mb-6">
+        <div class="flex-1">
+          <label class="block text-sm font-medium mb-1">Minutes</label>
+          <input 
+            type="number" 
+            min="0" 
+            max="59" 
+            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+            id="timer-minutes"
+          />
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-medium mb-1">Seconds</label>
+          <input 
+            type="number" 
+            min="0" 
+            max="59" 
+            class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+            id="timer-seconds"
+          />
+        </div>
+      </div>
+      <div class="flex space-x-3">
+        <button 
+          class="flex-1 px-4 py-2 bg-jamie-blue text-white rounded-lg hover:bg-jamie-dark-blue transition-colors"
+          id="start-timer"
+        >
+          Start
+        </button>
+        <button 
+          class="px-4 py-2 text-jamie-blue dark:text-jamie-accent-blue hover:text-jamie-orange transition-colors"
+          id="close-timer"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="p-4 space-y-6">
+    <!-- Time info -->
+    <div class="flex justify-between text-sm">
+      <div>
+        <span class="text-gray-600 dark:text-gray-400">Prep time:</span>
+        <span class="font-medium">{recipe.prepTime} mins</span>
+      </div>
+      <div>
+        <span class="text-gray-600 dark:text-gray-400">Cook time:</span>
+        <span class="font-medium">{recipe.cookTime} mins</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 dark:border-gray-700">
+      <div class="flex space-x-6">
+        <button 
+          class="py-2 border-b-2 border-jamie-blue dark:border-jamie-accent-blue text-jamie-blue dark:text-jamie-accent-blue font-medium"
+          data-tab="ingredients"
+        >
+          Ingredients
+        </button>
+        <button 
+          class="py-2 border-b-2 border-transparent text-gray-600 dark:text-gray-400"
+          data-tab="instructions"
+        >
+          Instructions
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab content -->
+    <div id="ingredients-content" class="space-y-4">
+      {recipe.ingredients.map((ingredient) => (
+        <div class="flex items-center space-x-3">
+          <input 
+            type="checkbox"
+            class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-jamie-blue dark:text-jamie-accent-blue focus:ring-jamie-blue dark:focus:ring-jamie-accent-blue"
+          />
+          <span>
+            {ingredient.amount} {ingredient.unit} {ingredient.item}
+          </span>
+        </div>
+      ))}
+    </div>
+
+    <div id="instructions-content" class="hidden space-y-6">
+      {recipe.instructions.map((instruction, index) => (
+        <div class="flex space-x-4">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-jamie-blue dark:bg-jamie-accent-blue text-white flex items-center justify-center font-medium">
+            {index + 1}
+          </div>
+          <p class="flex-1">{instruction}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize cooking mode
+  const cookingMode = document.getElementById('cooking-mode');
+  const exitButton = document.getElementById('exit-cooking-mode');
+  const timerButton = document.getElementById('toggle-timer');
+  const timerModal = document.getElementById('timer-modal');
+  const startTimer = document.getElementById('start-timer');
+  const closeTimer = document.getElementById('close-timer');
+  const progressBar = document.getElementById('progress-bar');
+  const tabs = document.querySelectorAll('[data-tab]');
+  const ingredientsContent = document.getElementById('ingredients-content');
+  const instructionsContent = document.getElementById('instructions-content');
+
+  // Tab switching
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Update tab styles
+      tabs.forEach(t => {
+        t.classList.remove('border-jamie-blue', 'dark:border-jamie-accent-blue', 'text-jamie-blue', 'dark:text-jamie-accent-blue');
+        t.classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-400');
+      });
+      tab.classList.add('border-jamie-blue', 'dark:border-jamie-accent-blue', 'text-jamie-blue', 'dark:text-jamie-accent-blue');
+      tab.classList.remove('border-transparent', 'text-gray-600', 'dark:text-gray-400');
+
+      // Show/hide content
+      if (tab.dataset.tab === 'ingredients') {
+        ingredientsContent.classList.remove('hidden');
+        instructionsContent.classList.add('hidden');
+      } else {
+        ingredientsContent.classList.add('hidden');
+        instructionsContent.classList.remove('hidden');
+      }
+    });
+  });
+
+  // Timer functionality
+  let timerInterval;
+  
+  timerButton.addEventListener('click', () => {
+    timerModal.classList.remove('hidden');
+  });
+
+  closeTimer.addEventListener('click', () => {
+    timerModal.classList.add('hidden');
+  });
+
+  startTimer.addEventListener('click', () => {
+    const minutes = parseInt(document.getElementById('timer-minutes').value) || 0;
+    const seconds = parseInt(document.getElementById('timer-seconds').value) || 0;
+    const totalSeconds = (minutes * 60) + seconds;
+
+    if (totalSeconds > 0) {
+      let timeLeft = totalSeconds;
+      timerModal.classList.add('hidden');
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        const progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
+        progressBar.style.width = `${progress}%`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          // Add notification sound or vibration here
+          if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
+          }
+        }
+      }, 1000);
+    }
+  });
+
+  // Exit cooking mode
+  exitButton.addEventListener('click', () => {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
+    cookingMode.remove();
+  });
+
+  // Keep screen awake during cooking mode
+  if ('wakeLock' in navigator) {
+    let wakeLock = null;
+    const requestWakeLock = async () => {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+      } catch (err) {
+        console.log(`${err.name}, ${err.message}`);
+      }
+    };
+    requestWakeLock();
+  }
+</script>

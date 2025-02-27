@@ -1,0 +1,289 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navigation from '../../components/Navigation.astro';
+import RecipeRating from '../../components/RecipeRating.astro';
+import RecipeTableOfContents from '../../components/RecipeTableOfContents.astro';
+import ReviewSection from '../../components/ReviewSection.astro';
+import { recipes } from '../../data/recipes';
+
+// Get the slug from URL parameters
+const { slug } = Astro.params;
+
+// Find the recipe by slug
+const recipe = slug && recipes[slug] 
+  ? { ...recipes[slug], slug } 
+  : null;
+
+// If recipe not found, redirect
+if (!recipe) {
+  return Astro.redirect('/recipes');
+}
+---
+
+<Layout title={`${recipe.title || ''} | Fresh Food Weekly`}>
+  <Navigation />
+
+  <main class="pt-32 pb-16">
+    <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <header class="text-center mb-16">
+        {recipe.category && (
+          <span class="inline-block px-4 py-1 rounded-full bg-jamie-orange text-white text-sm font-medium mb-4">
+            {recipe.category}
+          </span>
+        )}
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+          {recipe.title || ''}
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400 mb-8">
+          {recipe.description || ''}
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-gray-600 dark:text-gray-400">
+          {recipe.prepTime && (
+            <div class="flex flex-col items-center">
+              <span class="text-sm">Prep Time</span>
+              <span class="font-medium">{recipe.prepTime}</span>
+            </div>
+          )}
+          {recipe.cookingTime && (
+            <div class="flex flex-col items-center">
+              <span class="text-sm">Cook Time</span>
+              <span class="font-medium">{recipe.cookingTime}</span>
+            </div>
+          )}
+          {recipe.timeCategory && (
+            <div class="flex flex-col items-center">
+              <span class="text-sm">Time</span>
+              <span class="font-medium">{recipe.timeCategory}</span>
+            </div>
+          )}
+          {recipe.serves && (
+            <div class="flex flex-col items-center">
+              <span class="text-sm">Serves</span>
+              <span class="font-medium">{recipe.serves}</span>
+            </div>
+          )}
+          {recipe.difficulty && (
+            <div class="flex flex-col items-center">
+              <span class="text-sm">Difficulty</span>
+              <span class="font-medium capitalize">{recipe.difficulty}</span>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <!-- User Ratings -->
+      <RecipeRating 
+        rating={recipe.rating} 
+        totalRatings={recipe.totalRatings} 
+      />
+      
+      <!-- Table of Contents -->
+      <RecipeTableOfContents 
+        hasTips={recipe.tips && recipe.tips.length > 0}
+        hasNutritionInfo={!!recipe.nutritionInfo}
+      />
+
+      <!-- Featured Image -->
+      {recipe.image && (
+        <div class="relative aspect-[16/9] mb-16 rounded-xl overflow-hidden">
+          <img 
+            src={recipe.image} 
+            alt={recipe.title || ''} 
+            class="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      <!-- Recipe Content -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Ingredients -->
+        <div class="lg:col-span-1" id="ingredients">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            Ingredients
+          </h2>
+          <ul class="space-y-3">
+            {recipe.ingredients && recipe.ingredients.map((ingredient) => (
+              <li class="flex items-center text-gray-700 dark:text-gray-300">
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 text-jamie-orange border-gray-300 rounded mr-3"
+                />
+                <span>
+                  {typeof ingredient === 'string' 
+                    ? ingredient 
+                    : `${ingredient.amount || ''} ${ingredient.unit || ''} ${ingredient.item || ''}`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- Instructions -->
+        <div class="lg:col-span-2" id="instructions">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            Instructions
+          </h2>
+          {recipe.method && recipe.method.length > 0 ? (
+            <ol class="list-decimal list-inside space-y-4 text-gray-700 dark:text-gray-300">
+              {recipe.method.map((step) => (
+                <li class="pl-2">{step}</li>
+              ))}
+            </ol>
+          ) : recipe.instructions && recipe.instructions.length > 0 ? (
+            <ol class="list-decimal list-inside space-y-4 text-gray-700 dark:text-gray-300">
+              {recipe.instructions.map((instruction) => (
+                <li class="pl-2">{instruction}</li>
+              ))}
+            </ol>
+          ) : (
+            <p class="text-gray-600 dark:text-gray-400">No instructions available for this recipe.</p>
+          )}
+        </div>
+      </div>
+
+      <!-- Tips -->
+      {recipe.tips && recipe.tips.length > 0 && (
+        <div class="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700" id="tips">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            Chef's Tips
+          </h2>
+          <ul class="space-y-4 text-gray-700 dark:text-gray-300">
+            {recipe.tips.map((tip) => (
+              <li class="flex items-start">
+                <span class="mr-2">💡</span>
+                <span>{tip}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <!-- Nutrition Info -->
+      {recipe.nutritionInfo && (
+        <div class="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700" id="nutrition-info">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            Nutrition Information
+          </h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {recipe.nutritionInfo.calories && (
+              <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-center">
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{recipe.nutritionInfo.calories}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Calories</div>
+              </div>
+            )}
+            {recipe.nutritionInfo.protein && (
+              <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-center">
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{recipe.nutritionInfo.protein}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Protein</div>
+              </div>
+            )}
+            {recipe.nutritionInfo.carbs && (
+              <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-center">
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{recipe.nutritionInfo.carbs}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Carbs</div>
+              </div>
+            )}
+            {recipe.nutritionInfo.fat && (
+              <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-center">
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{recipe.nutritionInfo.fat}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Fat</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <!-- Tags -->
+      {recipe.dietaryPreferences && recipe.dietaryPreferences.length > 0 && (
+        <div class="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700" id="dietary-preferences">
+          <h2 class="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-4">
+            Dietary Preferences
+          </h2>
+          <div class="flex flex-wrap gap-2">
+            {recipe.dietaryPreferences.map(pref => (
+              <span class="inline-block px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-300">
+                {pref}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </article>
+
+    <ReviewSection 
+      reviews={recipe.reviews} 
+      recipeSlug={recipe.slug}
+    />
+  </main>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    @media (min-width: 768px) {
+      .hero-image {
+        transform: translateZ(0);
+        will-change: transform;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
+
+  <script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Animate content sections
+    gsap.from('header', {
+      y: 30,
+      opacity: 0,
+      duration: 1,
+      ease: 'power3.out'
+    });
+
+    gsap.from('.grid > div', {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.2,
+      scrollTrigger: {
+        trigger: '.grid',
+        start: 'top bottom-=100',
+        toggleActions: 'play none none reverse'
+      }
+    });
+
+    // Handle ingredient checkboxes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const label = e.target.nextElementSibling;
+        if (e.target.checked) {
+          label.classList.add('line-through', 'text-gray-400');
+        } else {
+          label.classList.remove('line-through', 'text-gray-400');
+        }
+      });
+    });
+  </script>
+</Layout>

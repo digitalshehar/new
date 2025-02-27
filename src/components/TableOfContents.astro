@@ -1,0 +1,80 @@
+---
+---
+
+<div class="bg-white rounded-lg shadow-md p-6">
+  <h3 class="text-lg font-semibold text-jamie-blue mb-4">Table of Contents</h3>
+  <nav class="space-y-2">
+    <a href="#ingredients" class="block text-gray-600 hover:text-jamie-orange transition-colors">
+      Ingredients
+    </a>
+    <a href="#instructions" class="block text-gray-600 hover:text-jamie-orange transition-colors">
+      Instructions
+    </a>
+    <a href="#variations" class="block text-gray-600 hover:text-jamie-orange transition-colors">
+      Variations
+    </a>
+    <a href="#nutrition" class="block text-gray-600 hover:text-jamie-orange transition-colors">
+      Nutrition Information
+    </a>
+    <a href="#comments" class="block text-gray-600 hover:text-jamie-orange transition-colors">
+      Comments & Reviews
+    </a>
+  </nav>
+</div>
+
+<script>
+  const links = document.querySelectorAll('nav a');
+  const sections = new Map();
+
+  // Collect all sections
+  links.forEach(link => {
+    const id = link.getAttribute('href')?.substring(1);
+    if (id) {
+      const section = document.getElementById(id);
+      if (section) {
+        sections.set(id, section);
+      }
+    }
+  });
+
+  // Highlight active section on scroll
+  const observerCallback = (entries: IntersectionObserverEntry[]) => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      const link = document.querySelector(`nav a[href="#${id}"]`);
+      
+      if (link) {
+        if (entry.isIntersecting) {
+          link.classList.add('text-jamie-orange', 'font-medium');
+          link.classList.remove('text-gray-600');
+        } else {
+          link.classList.remove('text-jamie-orange', 'font-medium');
+          link.classList.add('text-gray-600');
+        }
+      }
+    });
+  };
+
+  const observer = new IntersectionObserver(observerCallback, {
+    rootMargin: '-20% 0px -70% 0px'
+  });
+
+  sections.forEach(section => {
+    observer.observe(section);
+  });
+
+  // Smooth scroll to sections
+  links.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = link.getAttribute('href');
+      if (id) {
+        const section = document.querySelector(id);
+        section?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+</script>

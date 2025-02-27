@@ -1,0 +1,296 @@
+---
+import CookTimer from './CookTimer.astro';
+
+interface Props {
+  title: string;
+  ingredients: string[];
+  instructions: string[];
+  servings: number;
+}
+
+const { title, ingredients, instructions, servings } = Astro.props;
+---
+
+<div id="cook-mode" class="fixed inset-0 bg-black/95 z-50 hidden overflow-auto">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-2xl font-bold text-white">{title}</h2>
+      <button id="exit-cook-mode" class="text-white hover:text-gray-300">
+        <span class="sr-only">Exit Cook Mode</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Left Column: Ingredients and Timer -->
+      <div class="lg:col-span-4">
+        <div class="bg-white rounded-lg p-6 mb-6">
+          <h3 class="text-xl font-semibold mb-4">Ingredients</h3>
+          <div class="servings-control mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Adjust servings</label>
+            <div class="flex items-center space-x-2">
+              <button class="adjust-servings bg-gray-200 px-2 py-1 rounded" data-action="decrease">-</button>
+              <span class="servings-display">{servings}</span>
+              <button class="adjust-servings bg-gray-200 px-2 py-1 rounded" data-action="increase">+</button>
+            </div>
+          </div>
+          <ul class="space-y-2">
+            {ingredients.map((ingredient) => (
+              <li class="flex items-center">
+                <input type="checkbox" class="mr-2 h-4 w-4 text-jamie-blue" />
+                <span class="ingredient-text">{ingredient}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        <CookTimer />
+
+        <div class="bg-white rounded-lg p-6 mt-6">
+          <h3 class="text-xl font-semibold mb-4">Quick Controls</h3>
+          <div class="space-y-4">
+            <button id="toggle-voice" class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg hover:bg-gray-200">
+              <span>Voice Control</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <button id="toggle-screen" class="w-full flex items-center justify-between p-3 bg-gray-100 rounded-lg hover:bg-gray-200">
+              <span>Keep Screen On</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Instructions -->
+      <div class="lg:col-span-8">
+        <div class="bg-white rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-4">Instructions</h3>
+          <ol class="space-y-6">
+            {instructions.map((instruction, index) => (
+              <li class="instruction-step" data-step={index + 1}>
+                <div class="flex items-start">
+                  <span class="flex-shrink-0 w-8 h-8 bg-jamie-blue text-white rounded-full flex items-center justify-center mr-3">
+                    {index + 1}
+                  </span>
+                  <div class="flex-1">
+                    <p class="instruction-text">{instruction}</p>
+                    <div class="mt-2 flex items-center space-x-4">
+                      <button class="text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1 start-timer-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Set Timer</span>
+                      </button>
+                      <button class="text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1 read-aloud-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Read Aloud</span>
+                      </button>
+                    </div>
+                  </div>
+                  <input type="checkbox" class="ml-3 h-5 w-5 text-jamie-blue" />
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let originalServings = 0;
+  let originalIngredients: string[] = [];
+  let wakeLock: any = null;
+  let recognition: any = null;
+
+  // Initialize when the component mounts
+  document.addEventListener('DOMContentLoaded', () => {
+    const cookModeButton = document.getElementById('enter-cook-mode');
+    const cookModeView = document.getElementById('cook-mode');
+    const exitButton = document.getElementById('exit-cook-mode');
+    const toggleScreenButton = document.getElementById('toggle-screen');
+    const toggleVoiceButton = document.getElementById('toggle-voice');
+
+    if (cookModeButton && cookModeView && exitButton) {
+      // Store original values
+      const servingsElement = document.querySelector('.servings-display');
+      originalServings = parseInt(servingsElement?.textContent || '0', 10);
+      const ingredientElements = document.querySelectorAll('.ingredient-text');
+      originalIngredients = Array.from(ingredientElements).map(el => el.textContent || '');
+
+      // Enter cook mode
+      cookModeButton.addEventListener('click', () => {
+        cookModeView.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        requestWakeLock();
+      });
+
+      // Exit cook mode
+      exitButton.addEventListener('click', () => {
+        cookModeView.classList.add('hidden');
+        document.body.style.overflow = '';
+        releaseWakeLock();
+        if (recognition) {
+          recognition.stop();
+        }
+      });
+
+      // Toggle screen wake lock
+      toggleScreenButton?.addEventListener('click', async () => {
+        if (wakeLock) {
+          await releaseWakeLock();
+          toggleScreenButton.classList.remove('bg-jamie-blue', 'text-white');
+        } else {
+          await requestWakeLock();
+          toggleScreenButton.classList.add('bg-jamie-blue', 'text-white');
+        }
+      });
+
+      // Toggle voice control
+      toggleVoiceButton?.addEventListener('click', () => {
+        if (recognition && recognition.running) {
+          recognition.stop();
+          toggleVoiceButton.classList.remove('bg-jamie-blue', 'text-white');
+        } else {
+          startVoiceRecognition();
+          toggleVoiceButton.classList.add('bg-jamie-blue', 'text-white');
+        }
+      });
+
+      // Initialize servings control
+      initializeServingsControl();
+    }
+  });
+
+  // Wake Lock API
+  async function requestWakeLock() {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLock = await (navigator as any).wakeLock.request('screen');
+      } catch (err) {
+        console.error('Wake Lock error:', err);
+      }
+    }
+  }
+
+  async function releaseWakeLock() {
+    if (wakeLock) {
+      try {
+        await wakeLock.release();
+        wakeLock = null;
+      } catch (err) {
+        console.error('Wake Lock release error:', err);
+      }
+    }
+  }
+
+  // Voice Recognition
+  function startVoiceRecognition() {
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new (window as any).webkitSpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = (event: any) => {
+        const last = event.results.length - 1;
+        const command = event.results[last][0].transcript.toLowerCase();
+
+        // Handle voice commands
+        if (command.includes('next step')) {
+          navigateSteps('next');
+        } else if (command.includes('previous step')) {
+          navigateSteps('previous');
+        } else if (command.includes('start timer')) {
+          startTimer();
+        }
+      };
+
+      recognition.start();
+    }
+  }
+
+  // Navigation between steps
+  function navigateSteps(direction: 'next' | 'previous') {
+    const steps = document.querySelectorAll('.instruction-step');
+    const currentStep = document.querySelector('.instruction-step.active');
+    let nextIndex = 0;
+
+    if (currentStep) {
+      const currentIndex = Array.from(steps).indexOf(currentStep);
+      if (direction === 'next') {
+        nextIndex = Math.min(currentIndex + 1, steps.length - 1);
+      } else {
+        nextIndex = Math.max(currentIndex - 1, 0);
+      }
+    }
+
+    steps.forEach((step, index) => {
+      step.classList.toggle('active', index === nextIndex);
+    });
+  }
+
+  // Timer functionality
+  function startTimer() {
+    const activeStep = document.querySelector('.instruction-step.active');
+    if (activeStep) {
+      const timerBtn = activeStep.querySelector('.start-timer-btn');
+      timerBtn?.click();
+    }
+  }
+
+  // Servings control
+  function initializeServingsControl() {
+    const adjustBtns = document.querySelectorAll('.adjust-servings');
+    const servingsDisplay = document.querySelector('.servings-display');
+    const ingredientsList = document.querySelectorAll('.ingredient-text');
+    
+    adjustBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = (e.target as HTMLElement).dataset.action;
+        let currentServings = parseInt(servingsDisplay?.textContent || '0', 10);
+        
+        if (action === 'increase') {
+          currentServings++;
+        } else if (action === 'decrease' && currentServings > 1) {
+          currentServings--;
+        }
+
+        if (servingsDisplay) {
+          servingsDisplay.textContent = currentServings.toString();
+        }
+
+        // Update ingredient quantities
+        updateIngredientQuantities(currentServings);
+      });
+    });
+  }
+
+  function updateIngredientQuantities(newServings: number) {
+    const ingredientsList = document.querySelectorAll('.ingredient-text');
+    ingredientsList.forEach((ingredient, index) => {
+      const originalText = originalIngredients[index];
+      if (originalText) {
+        const quantity = extractQuantity(originalText);
+        if (quantity) {
+          const newQuantity = (quantity * newServings) / originalServings;
+          const newText = originalText.replace(quantity.toString(), newQuantity.toString());
+          ingredient.textContent = newText;
+        }
+      }
+    });
+  }
+
+  function extractQuantity(text: string): number | null {
+    const match = text.match(/^\d+(\.\d+)?/);
+    return match ? parseFloat(match[0]) : null;
+  }
+</script>

@@ -1,0 +1,73 @@
+---
+interface Variation {
+  title: string;
+  description: string;
+  changes: string[];
+}
+
+interface Props {
+  variations: Variation[];
+}
+
+const { variations } = Astro.props;
+---
+
+<section class="mb-12" id="variations">
+  <h2 class="text-2xl font-bold text-jamie-blue mb-6">Recipe Variations</h2>
+  <div class="space-y-6">
+    {variations.map((variation, index) => (
+      <div class="bg-white rounded-lg shadow-md p-6 transform transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <h3 class="text-xl font-semibold text-jamie-orange mb-3">{variation.title}</h3>
+        <p class="text-gray-600 mb-4">{variation.description}</p>
+        <div class="space-y-2">
+          {variation.changes.map(change => (
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-jamie-orange flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+              <span class="text-gray-700">{change}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  // Animate variations on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-variation');
+        }
+      });
+    },
+    {
+      threshold: 0.2,
+      rootMargin: '50px'
+    }
+  );
+
+  document.querySelectorAll('#variations > div > div').forEach(variation => {
+    observer.observe(variation);
+  });
+</script>
+
+<style>
+  .animate-variation {
+    animation: slideIn 0.6s ease-out forwards;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

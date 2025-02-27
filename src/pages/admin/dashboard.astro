@@ -1,0 +1,183 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import jwt from 'jsonwebtoken';
+
+// Authentication check
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const token = Astro.cookies.get('auth_token')?.value;
+let isAuthenticated = false;
+let user = null;
+
+if (token) {
+  try {
+    user = jwt.verify(token, JWT_SECRET);
+    isAuthenticated = true;
+    console.log('User authenticated:', user.username);
+  } catch (error) {
+    console.error('JWT verification failed:', error.message);
+  }
+}
+
+// If not authenticated, redirect to login
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+---
+
+<AdminLayout title="Admin Dashboard | Fresh Food Weekly">
+  <div class="py-6">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Admin Dashboard</h1>
+    </div>
+    
+    <div class="mx-auto max-w-7xl mt-8 px-4 sm:px-6 md:px-8">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Recipes Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg dark:bg-gray-800">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 bg-jamie-orange rounded-md p-3">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75-1.5.75a3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0L3 16.5m15-3.379a48.474 48.474 0 0 0-6-.371c-2.032 0-4.034.126-6 .371m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.169c0 .621-.504 1.125-1.125 1.125H4.125C3.504 22.125 3 21.621 3 21v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 0 1 6 13.12M12.265 3.11a.375.375 0 1 1 .53 0L12.53 3.38a.375.375 0 0 1-.53 0l-.265-.27ZM6.77 6.84l.62-.71a.75.75 0 0 1 1.06 0l.71.71a.75.75 0 0 1 0 1.06l-.53.53a.75.75 0 0 1-1.06 0l-.53-.53a.75.75 0 0 1 0-1.06Zm10 0l.62-.71a.75.75 0 0 1 1.06 0l.71.71a.75.75 0 0 1 0 1.06l-.53.53a.75.75 0 0 1-1.06 0l-.53-.53a.75.75 0 0 1 0-1.06Z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate dark:text-gray-400">Total Recipes</dt>
+                  <dd>
+                    <div class="text-lg font-medium text-gray-900 dark:text-white">12</div>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-5 py-3 dark:bg-gray-700">
+            <div class="text-sm">
+              <a href="/admin/recipes" class="font-medium text-jamie-orange hover:text-amber-600">
+                View recipes
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blog Posts Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg dark:bg-gray-800">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 bg-jamie-orange rounded-md p-3">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate dark:text-gray-400">Blog Posts</dt>
+                  <dd>
+                    <div class="text-lg font-medium text-gray-900 dark:text-white">8</div>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-5 py-3 dark:bg-gray-700">
+            <div class="text-sm">
+              <a href="/admin/blog" class="font-medium text-jamie-orange hover:text-amber-600">
+                View blog posts
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg dark:bg-gray-800">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 bg-jamie-orange rounded-md p-3">
+                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate dark:text-gray-400">Active Users</dt>
+                  <dd>
+                    <div class="text-lg font-medium text-gray-900 dark:text-white">3</div>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-5 py-3 dark:bg-gray-700">
+            <div class="text-sm">
+              <a href="/admin/users" class="font-medium text-jamie-orange hover:text-amber-600">
+                View users
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Welcome Message -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mt-8 dark:bg-gray-800">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Welcome, {user?.name || 'Administrator'}</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+            You're logged in as {user?.role || 'admin'}.
+          </p>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700">
+          <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 dark:bg-gray-700">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Quick links</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-white">
+                <ul class="space-y-2">
+                  <li><a href="/admin/recipes" class="text-jamie-orange hover:underline">Manage Recipes</a></li>
+                  <li><a href="/admin/blog" class="text-jamie-orange hover:underline">Manage Blog Posts</a></li>
+                  <li><a href="/admin/users" class="text-jamie-orange hover:underline">Manage Users</a></li>
+                  <li><a href="/admin/settings" class="text-jamie-orange hover:underline">Site Settings</a></li>
+                </ul>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      
+      <!-- System Status -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg mt-8 dark:bg-gray-800">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">System Status</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+            Overview of the system performance and status.
+          </p>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700">
+          <dl>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 dark:bg-gray-900">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Server Status</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-white">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                  Online
+                </span>
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 dark:bg-gray-700">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Backup</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-white">
+                {new Date().toLocaleDateString()}
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 dark:bg-gray-900">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Disk Usage</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 dark:text-white">
+                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-600">
+                  <div class="bg-jamie-orange h-2.5 rounded-full" style="width: 45%"></div>
+                </div>
+                <span class="text-xs mt-1 inline-block">45%</span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

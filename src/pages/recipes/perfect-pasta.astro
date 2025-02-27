@@ -1,0 +1,175 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RecipeHero from '../../components/RecipeHero';
+import RecipeContent from '../../components/RecipeContent';
+import RecipeComments from '../../components/RecipeComments';
+import TableOfContents from '../../components/TableOfContents';
+import RecipeTimer from '../../components/RecipeTimer';
+import IngredientsList from '../../components/IngredientsList';
+
+const recipe = {
+  title: "Perfect Pasta Carbonara",
+  description: "A classic Italian pasta dish made with eggs, cheese, pancetta, and lots of black pepper. Simple yet incredibly satisfying!",
+  image: "/images/recipes/carbonara.jpg",
+  cookingTime: "25 minutes",
+  timeCategory: "Under 30 mins",
+  difficulty: "Medium",
+  serves: "4",
+  category: "Main Course",
+  slug: "perfect-pasta",
+  featured: true,
+  rating: 4.8,
+  totalRatings: 256,
+  ingredients: [
+    "400g spaghetti",
+    "200g pancetta or guanciale, diced",
+    "4 large free-range eggs",
+    "100g Pecorino Romano, freshly grated",
+    "100g Parmigiano Reggiano, freshly grated",
+    "2 cloves of garlic, peeled and crushed",
+    "Extra virgin olive oil",
+    "Freshly ground black pepper",
+    "Sea salt"
+  ],
+  method: [
+    {
+      step: "Bring a large pot of salted water to boil",
+      time: 10,
+      description: "Add the spaghetti and cook according to package instructions until al dente."
+    },
+    {
+      step: "Prepare the pancetta",
+      time: 5,
+      description: "While the pasta is cooking, heat a large frying pan over medium heat. Add a small drizzle of olive oil and the pancetta. Cook until crispy and golden."
+    },
+    {
+      step: "Mix the sauce",
+      time: 3,
+      description: "In a bowl, whisk together the eggs, grated cheeses, and plenty of black pepper until well combined."
+    },
+    {
+      step: "Combine and finish",
+      time: 5,
+      description: "When pasta is done, reserve 1 cup pasta water, drain pasta. Working quickly, add hot pasta to pancetta pan. Remove from heat, add egg mixture, toss to combine. Add pasta water if needed for consistency."
+    }
+  ],
+  tips: [
+    "Use room temperature eggs for a smoother sauce",
+    "Never return the pan to heat after adding eggs - they'll scramble",
+    "Toss the pasta quickly to ensure even coating",
+    "Use freshly grated cheese - pre-grated won't melt properly"
+  ],
+  nutritionInfo: {
+    calories: "850",
+    protein: "35g",
+    carbs: "88g",
+    fat: "42g"
+  },
+  dietaryPreferences: ["None"],
+  season: "All",
+  reviews: [],
+  prepTime: "10 mins",
+  totalTime: "25 mins",
+  variations: [
+    {
+      title: "Vegetarian Version",
+      description: "A meat-free take on the classic carbonara",
+      changes: [
+        "Replace pancetta with sautéed mushrooms",
+        "Add some fresh peas for extra color and nutrition",
+        "Use vegetarian hard cheese instead of traditional Pecorino"
+      ]
+    },
+    {
+      title: "Lighter Version",
+      description: "A healthier twist with fewer calories",
+      changes: [
+        "Use whole wheat pasta for more fiber",
+        "Reduce the amount of cheese by half",
+        "Add zucchini noodles mixed with the pasta",
+        "Use turkey bacon instead of pancetta"
+      ]
+    }
+  ]
+};
+
+const sections = [
+  { id: 'ingredients', title: 'Ingredients' },
+  { id: 'method', title: 'Method' },
+  { id: 'tips', title: 'Chef\'s Tips' },
+  { id: 'variations', title: 'Variations' },
+  { id: 'nutrition', title: 'Nutrition' }
+];
+---
+
+<Layout title={`${recipe.title} | Fresh Food Weekly`}>
+  <main class="min-h-screen">
+    <nav class="absolute top-4 left-4 z-10 text-sm text-white/90" aria-label="Breadcrumb">
+      <ol class="list-none p-0 inline-flex">
+        <li class="flex items-center">
+          <a href="/" class="hover:text-white transition-colors">Home</a>
+          <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+            <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/>
+          </svg>
+        </li>
+        <li class="flex items-center">
+          <a href="/recipes" class="hover:text-white transition-colors">Recipes</a>
+          <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+            <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/>
+          </svg>
+        </li>
+        <li>
+          <span class="text-white/70" aria-current="page">{recipe.title}</span>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+      <RecipeHero recipe={recipe} client:load />
+      <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-9">
+          <RecipeContent recipe={recipe} client:load>
+            <RecipeTimer steps={recipe.method} client:load />
+          </RecipeContent>
+          <RecipeComments slug={recipe.slug} client:load />
+        </div>
+        <aside class="lg:col-span-3">
+          <div class="sticky top-8">
+            <TableOfContents sections={sections} client:load />
+            <IngredientsList ingredients={recipe.ingredients} servings={recipe.serves} client:load />
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (min-width: 768px) {
+    .hero-image {
+      transform: translateZ(0);
+      will-change: transform;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>

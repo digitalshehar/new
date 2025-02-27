@@ -1,0 +1,456 @@
+---
+import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/500.css';
+import '@fontsource/poppins/600.css';
+import '@fontsource/poppins/700.css';
+import '../styles/globals.css';
+import '../styles/animations.css';
+import Footer from '../components/Footer.astro';
+import { ViewTransitions } from 'astro:transitions';
+import CommandPalette from '../components/CommandPalette';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { PageTransition } from '../components/PageTransition';
+import { ScrollToTop } from '../components/ScrollToTop';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "AillyCorner | Authentic Indian & Global Recipes",
+  description = "Discover authentic Indian recipes, cooking tips, and global cuisine with an Indian twist at AillyCorner.com"
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta name="theme-color" content="#1E3D59" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <ViewTransitions />
+    
+    <!-- Newsletter Form Handler -->
+    <script is:inline src="/scripts/newsletter.js"></script>
+
+    <!-- Prevent flash of incorrect theme -->
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'light';
+      })();
+    
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+      }
+      window.localStorage.setItem('theme', theme);
+    </script>
+
+    <!-- Handle scroll restoration -->
+    <script is:inline>
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+
+      let isNavigating = false;
+      let lastScrollPosition = 0;
+
+      document.addEventListener('astro:page-load', () => {
+        if (!isNavigating) {
+          const scrollPos = sessionStorage.getItem('scrollPos');
+          if (scrollPos) {
+            window.scrollTo(0, parseInt(scrollPos, 10));
+            sessionStorage.removeItem('scrollPos');
+          }
+        }
+        isNavigating = false;
+      });
+
+      document.addEventListener('astro:before-preparation', () => {
+        isNavigating = true;
+        lastScrollPosition = window.scrollY;
+        sessionStorage.setItem('scrollPos', lastScrollPosition.toString());
+      });
+
+      // Debounced scroll handler
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      // Handle smooth scrolling
+      document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target instanceof HTMLAnchorElement && target.hash && target.origin + target.pathname === window.location.origin + window.location.pathname) {
+          e.preventDefault();
+          const element = document.getElementById(target.hash.slice(1));
+          if (element) {
+            const offset = 80; // Height of fixed header if any
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.scrollY - offset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+            
+            history.pushState(null, '', target.hash);
+          }
+        }
+      });
+
+      // Update active section in navigation
+      const updateActiveSection = debounce(() => {
+        if (isNavigating) return;
+
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('nav a');
+        
+        let currentSection = '';
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (window.scrollY >= sectionTop - 100) {
+            currentSection = section.getAttribute('id') || '';
+          }
+        });
+
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href')?.includes(currentSection)) {
+            link.classList.add('active');
+          }
+        });
+      }, 100);
+
+      window.addEventListener('scroll', updateActiveSection);
+
+      // Handle errors
+      window.addEventListener('error', (event) => {
+        console.error('Global error:', event.error);
+        // Prevent the error from breaking the page
+        event.preventDefault();
+      });
+
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+        // Prevent the error from breaking the page
+        event.preventDefault();
+      });
+    </script>
+  </head>
+  <body class="min-h-screen font-poppins bg-white dark:bg-gray-900 text-gray-900 dark:text-white antialiased">
+    <ErrorBoundary client:load>
+      <PageTransition client:load>
+        <div id="page-wrapper" class="flex flex-col min-h-screen">
+          <div class="flex-grow overflow-x-hidden">
+            <slot />
+          </div>
+          <Footer />
+        </div>
+      </PageTransition>
+
+      <CommandPalette client:load />
+      <ScrollToTop client:load />
+      
+      <div class="fixed bottom-4 right-4 z-40">
+        <button
+          id="commandPaletteButton"
+          class="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
+          title="Open Command Palette (⌘K)"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+      </div>
+    </ErrorBoundary>
+
+    <script>
+      // Command palette button handler
+      const commandPaletteButton = document.getElementById('commandPaletteButton');
+      if (commandPaletteButton) {
+        commandPaletteButton.addEventListener('click', () => {
+          window.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'k',
+            metaKey: true
+          }));
+        });
+      }
+    </script>
+
+    <script>
+      // IntersectionObserver to trigger animations when elements are in view
+      function setupIntersectionObserver() {
+        const observerOptions = {
+          root: null,
+          rootMargin: "0px",
+          threshold: 0.15
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in-view');
+              
+              // Check if animation should only play once
+              if (entry.target.getAttribute('data-motion-once') === 'true') {
+                observer.unobserve(entry.target);
+              }
+            } else {
+              // Remove animation class if it's not meant to play only once
+              if (entry.target.getAttribute('data-motion-once') !== 'true') {
+                entry.target.classList.remove('in-view');
+              }
+            }
+          });
+        }, observerOptions);
+        
+        // Observe all elements with the intersection animation class
+        document.querySelectorAll('.motion-intersect').forEach(el => {
+          observer.observe(el);
+        });
+      }
+      
+      // Set up staggered animations
+      function setupStaggeredAnimations() {
+        document.querySelectorAll('[data-motion-stagger]').forEach(container => {
+          const items = Array.from(container.querySelectorAll('.motion-item'));
+          const baseDelay = parseInt(container.getAttribute('data-motion-delay') || '50');
+          
+          items.forEach((item, index) => {
+            const delay = index * baseDelay;
+            item.style.animationDelay = `${delay}ms`;
+            item.style.transitionDelay = `${delay}ms`;
+          });
+        });
+      }
+      
+      // Initialize animations when DOM is loaded
+      document.addEventListener('DOMContentLoaded', () => {
+        setupIntersectionObserver();
+        setupStaggeredAnimations();
+      });
+    </script>
+
+    <style is:global>
+      :root {
+        --jamie-orange: #FF642D;
+        --jamie-blue: #1E3D59;
+        --jamie-cream: #FFFFFF;
+        --jamie-light-blue: #E8F1F8;
+        --jamie-dark-blue: #152C41;
+        --jamie-accent-blue: #3E6B99;
+      }
+
+      :root[class~="dark"] {
+        --jamie-cream: #111827;
+        --jamie-light-blue: #1F2937;
+        --jamie-dark-blue: #0F172A;
+        --jamie-accent-blue: #60A5FA;
+      }
+      
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 2rem;
+      }
+      
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      /* Prevent layout shift */
+      body {
+        overflow-y: scroll;
+      }
+
+      /* Improved scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--jamie-light-blue);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--jamie-accent-blue);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--jamie-blue);
+      }
+
+      /* Prevent content jumping */
+      * {
+        min-height: 0;
+        min-width: 0;
+      }
+
+      /* Improve image rendering */
+      img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+      }
+
+      /* Prevent text selection during navigation */
+      .navigating * {
+        user-select: none;
+      }
+
+      /* Prevent overflow issues */
+      .overflow-fix {
+        overflow: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Improve tap targets on mobile */
+      @media (max-width: 640px) {
+        button, a {
+          min-height: 44px;
+          min-width: 44px;
+        }
+      }
+
+      /* Prevent zoom on input focus in mobile Safari */
+      @media screen and (max-width: 768px) {
+        input, select, textarea {
+          font-size: 16px !important;
+        }
+      }
+
+      /* Fix iOS momentum scrolling */
+      .scroll-container {
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Prevent pull-to-refresh on mobile */
+      body {
+        overscroll-behavior-y: none;
+      }
+
+      /* Fix Chrome scroll anchoring issues */
+      * {
+        overflow-anchor: none;
+      }
+
+      /* Improve animation performance */
+      * {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+
+      /* Prevent unwanted text selection */
+      .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* Fix iOS rubber band effect */
+      .ios-fix {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      /* Smooth transitions */
+      .page-transition-enter {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      .page-transition-enter-active {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 300ms, transform 300ms;
+      }
+
+      .page-transition-exit {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .page-transition-exit-active {
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 300ms, transform 300ms;
+      }
+
+      /* Prevent FOUC */
+      .no-fouc {
+        visibility: hidden;
+      }
+
+      .fouc-ready {
+        visibility: visible;
+      }
+
+      /* Dark mode styles */
+      .dark {
+        --accent: 251, 146, 60;
+        --accent-light: 234, 88, 12;
+        --accent-dark: 154, 52, 18;
+        --accent-gradient: linear-gradient(
+          45deg,
+          rgb(var(--accent)),
+          rgb(var(--accent-light)) 30%,
+          rgb(39, 39, 42) 60%
+        );
+      }
+
+      html {
+        font-family: system-ui, sans-serif;
+        background: #F6F6F6;
+        background-size: 224px;
+      }
+
+      .dark html {
+        background: #18181B;
+      }
+
+      code {
+        font-family:
+          Menlo,
+          Monaco,
+          Lucida Console,
+          Liberation Mono,
+          DejaVu Sans Mono,
+          Bitstream Vera Sans Mono,
+          Courier New,
+          monospace;
+      }
+    </style>
+  </body>
+</html>

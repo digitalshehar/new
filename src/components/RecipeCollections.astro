@@ -1,0 +1,81 @@
+---
+interface Props {
+  categories?: string[];
+}
+
+const { categories = [] } = Astro.props;
+
+// In a real app, these would come from a database
+const collections = [
+  {
+    title: "Healthy Salads",
+    image: "/images/collections/salads.jpg",
+    recipeCount: 24,
+    slug: "healthy-salads"
+  },
+  {
+    title: "Air Fryer Recipes",
+    image: "/images/collections/air-fryer.jpg",
+    recipeCount: 18,
+    slug: "air-fryer-recipes"
+  },
+  {
+    title: "Vegetarian Dishes",
+    image: "/images/collections/vegetarian.jpg",
+    recipeCount: 42,
+    slug: "vegetarian-dishes"
+  }
+];
+
+// Filter collections based on recipe categories
+const relevantCollections = categories.length > 0
+  ? collections.filter(collection =>
+      categories.some(category =>
+        collection.title.toLowerCase().includes(category.toLowerCase())
+      )
+    )
+  : collections;
+
+---
+
+<section class="recipe-collections mt-12">
+  <h2 class="text-2xl font-bold text-jamie-blue mb-6">Recipe Collections</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {relevantCollections.map(collection => (
+      <a
+        href={`/collections/${collection.slug}`}
+        class="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow"
+      >
+        <div class="aspect-w-16 aspect-h-9">
+          <img
+            src={collection.image}
+            alt={collection.title}
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+            <h3 class="text-lg font-semibold mb-1">{collection.title}</h3>
+            <p class="text-sm opacity-90">{collection.recipeCount} recipes</p>
+          </div>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .aspect-w-16 {
+    position: relative;
+    padding-bottom: 56.25%;
+  }
+
+  .aspect-w-16 > * {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+</style>

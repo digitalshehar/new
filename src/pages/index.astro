@@ -1,0 +1,194 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navigation from '../components/Navigation.astro';
+import RecipeSearch from '../components/RecipeSearch';
+import RecipeTimer from '../components/RecipeTimer';
+import AnimatedSection from '../components/AnimatedSection';
+import { ImageSlider } from '../components/ImageSlider';
+
+const recipes = [
+  { 
+    slug: 'perfect-roast-chicken',
+    title: 'Perfect Roast Chicken',
+    time: '90',
+    rating: 4.9,
+    description: 'Crispy skin, juicy meat, and amazing flavors',
+    chef: 'Jamie Oliver',
+    difficulty: 'Medium',
+    servings: '4-6',
+    image: '/images/recipes/roast-chicken.jpg'
+  },
+  {
+    slug: 'garlic-shrimp-pasta',
+    title: 'Garlic Shrimp Pasta',
+    time: '25',
+    rating: 4.8,
+    description: 'Quick, easy and absolutely delicious',
+    chef: 'Jamie Oliver',
+    difficulty: 'Easy',
+    servings: '4',
+    image: '/images/recipes/shrimp-pasta.jpg'
+  },
+  {
+    slug: 'chocolate-cake',
+    title: 'Chocolate Cake',
+    time: '45',
+    rating: 4.9,
+    description: 'Rich, moist and decadent dessert',
+    chef: 'Jamie Oliver',
+    difficulty: 'Medium',
+    servings: '8-10',
+    image: '/images/recipes/chocolate-cake.jpg'
+  }
+];
+
+const heroSlides = [
+  {
+    image: '/images/hero/slide1.jpg',
+    title: 'Discover the Joy of Cooking',
+    description: 'Explore our collection of delicious recipes'
+  },
+  {
+    image: '/images/hero/slide2.jpg',
+    title: 'Cook Like a Pro',
+    description: 'Learn essential cooking techniques'
+  },
+  {
+    image: '/images/hero/slide3.jpg',
+    title: 'Fresh & Seasonal',
+    description: 'Get inspired by seasonal ingredients'
+  }
+];
+
+const categories = [
+  { name: 'Breakfast', icon: '🍳', link: '/recipes/category/breakfast' },
+  { name: 'Lunch', icon: '🥪', link: '/recipes/category/lunch' },
+  { name: 'Dinner', icon: '🍽️', link: '/recipes/category/dinner' },
+  { name: 'Desserts', icon: '🍰', link: '/recipes/category/desserts' },
+  { name: 'Vegetarian', icon: '🥗', link: '/recipes/category/vegetarian' },
+  { name: 'Quick & Easy', icon: '⚡', link: '/recipes/category/quick-easy' },
+  { name: 'Healthy', icon: '🥑', link: '/recipes/category/healthy' },
+  { name: 'Baking', icon: '🥖', link: '/recipes/category/baking' }
+];
+---
+
+<Layout title="Fresh Food Weekly - Delicious Recipes & Cooking Tips">
+  <Navigation />
+  
+  <!-- Hero Section -->
+  <section class="relative min-h-screen">
+    <ImageSlider slides={heroSlides} client:load />
+  </section>
+
+  <!-- Featured Recipes -->
+  <section class="py-16 bg-jamie-cream dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection client:load>
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-bold text-jamie-blue dark:text-white">
+            Featured Recipes
+          </h2>
+          <p class="mt-4 text-xl text-gray-600 dark:text-gray-300">
+            Discover our most popular recipes
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {recipes.map(recipe => (
+            <a 
+              href={`/recipes/${recipe.slug}`}
+              class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-transform hover:scale-105"
+            >
+              <div class="relative h-48 overflow-hidden">
+                <img 
+                  src={recipe.image} 
+                  alt={recipe.title}
+                  class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-4 left-4 right-4">
+                  <h3 class="text-xl font-semibold text-white">{recipe.title}</h3>
+                  <p class="text-white/90">{recipe.description}</p>
+                </div>
+              </div>
+              <div class="p-4">
+                <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                  <span class="flex items-center gap-1">
+                    ⏱️ {recipe.time} mins
+                  </span>
+                  <span class="flex items-center gap-1">
+                    ⭐ {recipe.rating}
+                  </span>
+                  <span>
+                    {recipe.difficulty}
+                  </span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </AnimatedSection>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="py-16 bg-white dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection client:load>
+        <h2 class="text-3xl font-bold text-jamie-blue dark:text-white mb-12 text-center">
+          Explore by Category
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {categories.map(category => (
+            <a
+              href={category.link}
+              class="group flex flex-col items-center p-6 bg-jamie-cream dark:bg-gray-800 rounded-xl shadow-lg transform transition-all hover:scale-105"
+            >
+              <span class="text-4xl mb-3">{category.icon}</span>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-white group-hover:text-jamie-orange">
+                {category.name}
+              </h3>
+            </a>
+          ))}
+        </div>
+      </AnimatedSection>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="py-16 bg-jamie-blue dark:bg-gray-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <AnimatedSection client:load>
+        <h2 class="text-3xl font-bold text-white mb-4">
+          Stay Updated with Fresh Recipes
+        </h2>
+        <p class="text-lg text-white/90 mb-8">
+          Subscribe to our newsletter and never miss a delicious recipe
+        </p>
+        <form 
+          class="flex flex-col sm:flex-row gap-4 justify-center"
+          id="newsletter-form"
+        >
+          <input
+            type="email"
+            placeholder="Enter your email"
+            class="px-6 py-3 rounded-full text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-jamie-orange"
+            required
+          />
+          <button
+            type="submit"
+            class="px-8 py-3 rounded-full bg-jamie-orange text-white font-medium hover:bg-jamie-orange/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange"
+          >
+            Subscribe
+          </button>
+        </form>
+      </AnimatedSection>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+</style>

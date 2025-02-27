@@ -1,0 +1,57 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import BlogPostEditor from '../../../../components/admin/BlogPostEditor';
+import { getCategories, getBlogPost } from '../../../../lib/api';
+
+// Authentication check - must happen before any rendering
+const isAuthenticated = Astro.cookies.has('admin_session');
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+const { id } = Astro.params;
+const [post, categories] = await Promise.all([
+  getBlogPost(id),
+  getCategories(),
+]);
+
+if (!post) {
+  return Astro.redirect('/admin/blog');
+}
+---
+
+<AdminLayout title={`Edit ${post.title} | Admin Dashboard`}>
+  <div class="space-y-6">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Edit Blog Post</h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Make changes to your blog post.
+      </p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <BlogPostEditor
+          client:load
+          initialPost={post}
+          categories={categories}
+          onSave={async (updatedPost) => {
+            const response = await fetch(`/api/posts/${id}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(updatedPost),
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to update post');
+            }
+
+            window.location.href = '/admin/blog';
+          }}
+        />
+      </div>
+    </div>
+  </div>
+</AdminLayout>

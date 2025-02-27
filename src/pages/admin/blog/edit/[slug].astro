@@ -1,0 +1,101 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import BlogForm from '../../../../components/admin/BlogForm.astro';
+import jwt from 'jsonwebtoken';
+import fs from 'fs/promises';
+import path from 'path';
+import matter from 'gray-matter';
+
+// Authentication check
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+const token = Astro.cookies.get('auth_token')?.value;
+let isAuthenticated = false;
+let user = null;
+
+if (token) {
+  try {
+    user = jwt.verify(token, JWT_SECRET);
+    isAuthenticated = true;
+    console.log('User authenticated:', user.username);
+  } catch (error) {
+    console.error('JWT verification failed:', error.message);
+  }
+}
+
+// If not authenticated, redirect to login
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+// Get post slug from params
+const { slug } = Astro.params;
+
+// Get post data
+let post = null;
+let error = null;
+
+try {
+  const blogDir = path.join(process.cwd(), 'src', 'pages', 'blog');
+  const filePath = path.join(blogDir, `${slug}.md`);
+  
+  // Check if file exists
+  try {
+    await fs.access(filePath);
+  } catch {
+    return Astro.redirect('/admin/blog');
+  }
+  
+  // Read post content
+  const fileContent = await fs.readFile(filePath, 'utf-8');
+  const { data, content } = matter(fileContent);
+  
+  // Prepare post data for the form
+  post = {
+    title: data.title || '',
+    slug: data.slug || slug,
+    author: data.author || '',
+    content: content || '',
+    excerpt: data.excerpt || '',
+    category: data.category || '',
+    status: data.status || 'draft',
+    image: data.image || '',
+    tags: data.tags || []
+  };
+  
+} catch (err) {
+  console.error('Error fetching post:', err);
+  error = err.message || 'An error occurred while fetching the post';
+  return Astro.redirect('/admin/blog');
+}
+---
+
+<AdminLayout title={`Edit ${post.title} | Admin Dashboard`}>
+  <div class="py-6">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+      <div class="md:flex md:items-center md:justify-between">
+        <div class="min-w-0 flex-1">
+          <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Edit Blog Post</h1>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Make changes to "{post.title}"</p>
+        </div>
+        <div class="mt-4 flex md:mt-0">
+          <a href="/admin/blog" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Blog Posts
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mx-auto max-w-7xl mt-6 px-4 sm:px-6 md:px-8">
+      {error ? (
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 dark:bg-red-900/50 dark:border-red-500">
+          <p class="text-red-700 dark:text-red-300">{error}</p>
+        </div>
+      ) : (
+        <BlogForm mode="edit" post={post} />
+      )}
+    </div>
+  </div>
+</AdminLayout>

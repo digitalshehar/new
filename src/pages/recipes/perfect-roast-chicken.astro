@@ -1,0 +1,196 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RecipeHero from '../../components/RecipeHero';
+import RecipeContent from '../../components/RecipeContent';
+import RecipeComments from '../../components/RecipeComments';
+import TableOfContents from '../../components/TableOfContents';
+import RecipeTimer from '../../components/RecipeTimer';
+
+const recipe = {
+  title: "Perfect Roast Chicken",
+  description: "A classic roast chicken recipe that's simple to make and delivers amazing results every time. Crispy skin, juicy meat, and beautiful flavors.",
+  image: "/images/recipes/perfect-roast-chicken.jpg",
+  cookingTime: "1 hour 20 mins",
+  timeCategory: "60+ mins",
+  difficulty: "Medium",
+  serves: "4",
+  category: "Main Course",
+  slug: "perfect-roast-chicken",
+  featured: true,
+  rating: 4.8,
+  totalRatings: 1250,
+  ingredients: [
+    "1 whole chicken (about 1.6kg)",
+    "1 lemon",
+    "1 bulb of garlic",
+    "Fresh herbs (thyme, rosemary)",
+    "2 tablespoons olive oil",
+    "Salt and black pepper",
+    "2 onions, quartered",
+    "4 carrots, chunked",
+    "4 potatoes, quartered",
+    "2 celery sticks, chunked"
+  ],
+  method: [
+    {
+      step: "Preheat oven",
+      time: 5,
+      description: "Preheat your oven to 200°C/400°F. Remove the chicken from the fridge 30 minutes before cooking to bring it to room temperature."
+    },
+    {
+      step: "Prepare chicken",
+      time: 5,
+      description: "Pat the chicken dry with paper towels. This helps achieve crispy skin."
+    },
+    {
+      step: "Stuff chicken",
+      time: 5,
+      description: "Cut the lemon in half and place inside the cavity along with the garlic bulb (cut in half crosswise) and herbs."
+    },
+    {
+      step: "Season chicken",
+      time: 5,
+      description: "Rub the chicken all over with olive oil and season generously with salt and pepper, including inside the cavity."
+    },
+    {
+      step: "Prepare vegetables",
+      time: 5,
+      description: "Place the prepared vegetables in a roasting tray and place the chicken on top."
+    },
+    {
+      step: "Roast chicken",
+      time: 80,
+      description: "Roast for 1 hour 20 minutes, or until the juices run clear when you pierce the thickest part of the thigh."
+    },
+    {
+      step: "Rest and serve",
+      time: 15,
+      description: "Rest the chicken for 15 minutes before carving. Serve with the roasted vegetables and pan juices."
+    }
+  ],
+  tips: [
+    "Bringing the chicken to room temperature helps it cook more evenly",
+    "Don't skip the resting time - it helps keep the meat juicy",
+    "Save the bones to make homemade chicken stock",
+    "For extra flavor, stuff some herb butter under the skin before roasting",
+    "Baste the chicken every 20-30 minutes while roasting for extra juicy meat",
+    "Use a meat thermometer to ensure the chicken is cooked through - it should read 75°C/165°F in the thickest part",
+    "Let the chicken rest breast-side down to help the juices flow back into the meat"
+  ],
+  nutritionInfo: {
+    calories: "420",
+    protein: "38g",
+    carbs: "25g",
+    fat: "22g"
+  },
+  dietaryPreferences: ["High Protein", "Gluten-Free"],
+  season: ["All Year"],
+  reviews: [],
+  prepTime: "15 mins",
+  totalTime: "1 hour 35 mins",
+  variations: [
+    {
+      title: "Lemon & Herb",
+      description: "A citrusy twist on the classic recipe",
+      changes: [
+        "Add extra lemon zest and juice",
+        "Use a mix of fresh herbs like parsley, tarragon, and chives",
+        "Add white wine to the roasting pan"
+      ]
+    },
+    {
+      title: "Spicy Version",
+      description: "A spicier take with added heat",
+      changes: [
+        "Add paprika and cayenne to the seasoning",
+        "Include chopped chili in the cavity",
+        "Serve with spicy gravy"
+      ]
+    }
+  ]
+};
+
+const sections = [
+  { id: 'ingredients', title: 'Ingredients' },
+  { id: 'method', title: 'Method' },
+  { id: 'tips', title: 'Chef\'s Tips' },
+  { id: 'variations', title: 'Variations' },
+  { id: 'nutrition', title: 'Nutrition' }
+];
+---
+
+<Layout title={`${recipe.title} | Fresh Food Weekly`}>
+  <main class="min-h-screen">
+    <nav class="absolute top-4 left-4 z-10 text-sm text-white/90" aria-label="Breadcrumb">
+      <ol class="list-none p-0 inline-flex">
+        <li class="flex items-center">
+          <a href="/" class="hover:text-white transition-colors">Home</a>
+          <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+            <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/>
+          </svg>
+        </li>
+        <li class="flex items-center">
+          <a href="/recipes" class="hover:text-white transition-colors">Recipes</a>
+          <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+            <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/>
+          </svg>
+        </li>
+        <li>
+          <span class="text-white/70" aria-current="page">{recipe.title}</span>
+        </li>
+      </ol>
+    </nav>
+
+    <RecipeHero client:load recipe={recipe} />
+
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8">
+        <aside class="lg:col-span-1">
+          <div class="sticky top-8">
+            <TableOfContents sections={sections} />
+          </div>
+        </aside>
+
+        <div class="lg:col-span-3">
+          <RecipeContent client:load recipe={recipe}>
+            <RecipeTimer client:load steps={recipe.method} slot="timer" />
+          </RecipeContent>
+          
+          <div class="mt-16 mb-12">
+            <RecipeComments client:load recipeSlug={recipe.slug} />
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (min-width: 768px) {
+    .hero-image {
+      transform: translateZ(0);
+      will-change: transform;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>

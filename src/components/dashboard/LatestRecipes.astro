@@ -1,0 +1,126 @@
+---
+import { recipes } from '../../data/recipes';
+
+// Get the latest recipes by sorting them
+const latestRecipes = Object.values(recipes)
+  .sort((a, b) => {
+    // Assuming newer recipes would be added later in the object
+    // In a real app, you'd use creation dates
+    return 0; // Placeholder for actual sorting logic
+  })
+  .slice(0, 5); // Get only the 5 most recent recipes
+---
+
+<div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Latest Recipes</h3>
+    <div>
+      <button id="view-type-toggle" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 grid-view" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 list-view hidden" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Grid View (Default) -->
+  <div id="grid-view" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+    {latestRecipes.map(recipe => (
+      <div class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div class="relative pb-[60%]">
+          <img 
+            src={recipe.image} 
+            alt={recipe.title} 
+            class="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+          />
+          {recipe.featured && (
+            <span class="absolute top-2 right-2 bg-jamie-orange text-white text-xs px-2 py-1 rounded-full">
+              Featured
+            </span>
+          )}
+        </div>
+        <div class="p-4">
+          <h4 class="font-semibold text-gray-900 dark:text-white mb-1 truncate">{recipe.title}</h4>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{recipe.description}</p>
+          <div class="flex justify-between items-center">
+            <div class="flex items-center">
+              <span class="text-xs text-gray-500 dark:text-gray-400">{recipe.cookingTime}</span>
+            </div>
+            <a 
+              href={`/recipes/${recipe.slug}`} 
+              class="text-jamie-orange hover:underline text-sm font-medium"
+            >
+              View Recipe
+            </a>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+  
+  <!-- List View (Hidden by default) -->
+  <div id="list-view" class="hidden divide-y divide-gray-200 dark:divide-gray-700">
+    {latestRecipes.map(recipe => (
+      <div class="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0 h-12 w-12 rounded-md overflow-hidden">
+            <img src={recipe.image} alt={recipe.title} class="h-full w-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {recipe.title}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {recipe.cookingTime} • {recipe.category}
+            </p>
+          </div>
+          <div>
+            <a 
+              href={`/recipes/${recipe.slug}`} 
+              class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-jamie-orange bg-jamie-orange bg-opacity-10 hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange"
+            >
+              View
+            </a>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  // Toggle between grid and list view
+  const viewToggle = document.getElementById('view-type-toggle');
+  const gridView = document.getElementById('grid-view');
+  const listView = document.getElementById('list-view');
+  const gridIcon = document.querySelector('.grid-view');
+  const listIcon = document.querySelector('.list-view');
+  
+  // Check if there's a saved preference in localStorage
+  const savedView = localStorage.getItem('recipeViewPreference');
+  if (savedView === 'list') {
+    gridView.classList.add('hidden');
+    listView.classList.remove('hidden');
+    gridIcon.classList.add('hidden');
+    listIcon.classList.remove('hidden');
+  }
+  
+  viewToggle.addEventListener('click', () => {
+    // Toggle visibility
+    gridView.classList.toggle('hidden');
+    listView.classList.toggle('hidden');
+    gridIcon.classList.toggle('hidden');
+    listIcon.classList.toggle('hidden');
+    
+    // Save preference to localStorage
+    if (gridView.classList.contains('hidden')) {
+      localStorage.setItem('recipeViewPreference', 'list');
+    } else {
+      localStorage.setItem('recipeViewPreference', 'grid');
+    }
+  });
+</script>

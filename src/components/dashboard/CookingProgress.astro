@@ -1,0 +1,330 @@
+---
+// In a real application, this would be fetched from a database of user's cooking activities
+const inProgressRecipes = [
+  {
+    id: '1',
+    title: 'Perfect Pasta Carbonara',
+    slug: 'perfect-pasta',
+    lastCooked: '2025-02-27T15:30:00',
+    progress: 75,
+    steps: [
+      { name: 'Prep ingredients', completed: true },
+      { name: 'Cook pasta', completed: true },
+      { name: 'Make sauce', completed: true },
+      { name: 'Combine and serve', completed: false }
+    ],
+    image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1771&q=80'
+  },
+  {
+    id: '2',
+    title: 'Dal Makhani',
+    slug: 'dal-makhani',
+    lastCooked: '2025-02-27T10:15:00',
+    progress: 40,
+    steps: [
+      { name: 'Soak lentils', completed: true },
+      { name: 'Prepare base', completed: true },
+      { name: 'Simmer', completed: false },
+      { name: 'Add cream and garnish', completed: false }
+    ],
+    image: '/images/recipes/dal-makhani.jpg'
+  }
+];
+
+// Format time elapsed
+function timeElapsed(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  
+  if (diffMins < 60) {
+    return `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+  } else {
+    const diffHours = Math.floor(diffMins / 60);
+    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  }
+}
+---
+
+<div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg motion-intersect" data-motion-once="true" data-motion-direction="right">
+  <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+    <div>
+      <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Cooking In Progress</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">Track your ongoing cooking adventures</p>
+    </div>
+    <a href="#" class="text-jamie-orange hover:text-opacity-80 text-sm font-medium btn-pulse">View all</a>
+  </div>
+  
+  <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:px-6">
+    {inProgressRecipes.length > 0 ? (
+      <div class="space-y-6" data-motion-stagger data-motion-delay="150">
+        {inProgressRecipes.map(recipe => (
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden motion-item card-3d" data-recipe-id={recipe.id}>
+            <div class="p-4">
+              <div class="flex items-start">
+                <div class="flex-shrink-0 h-14 w-14 rounded overflow-hidden mr-4">
+                  <img src={recipe.image} alt={recipe.title} class="h-full w-full object-cover" loading="lazy" />
+                </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start">
+                    <h4 class="text-base font-medium text-gray-900 dark:text-white">{recipe.title}</h4>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{timeElapsed(recipe.lastCooked)}</span>
+                  </div>
+                  <div class="mt-2">
+                    <div class="flex justify-between mb-1">
+                      <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Progress</span>
+                      <span class="text-xs font-medium text-gray-700 dark:text-gray-300 progress-percent">{recipe.progress}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 overflow-hidden">
+                      <div class="bg-jamie-orange h-2 rounded-full transition-all duration-700 animate-shimmer" style={`width: ${recipe.progress}%`}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Steps</h5>
+                <ul class="space-y-2">
+                  {recipe.steps.map((step, index) => (
+                    <li class="flex items-center step-item" style={`transition-delay: ${index * 50}ms`}>
+                      <input
+                        type="checkbox"
+                        id={`step-${recipe.id}-${index}`}
+                        class="cooking-step h-4 w-4 text-jamie-orange border-gray-300 rounded focus:ring-jamie-orange"
+                        checked={step.completed}
+                        data-recipe-id={recipe.id}
+                        data-step-index={index}
+                      />
+                      <label 
+                        for={`step-${recipe.id}-${index}`} 
+                        class={`ml-2 text-sm ${step.completed ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-700 dark:text-gray-300'}`}
+                      >
+                        {step.name}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div class="mt-4 flex justify-between">
+                <button
+                  class="reset-progress inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange"
+                  data-recipe-id={recipe.id}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Reset
+                </button>
+                <a 
+                  href={`/recipes/${recipe.slug}`} 
+                  class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-jamie-orange hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange btn-pulse"
+                >
+                  Continue Cooking
+                </a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-10 motion-intersect" data-motion-once="true">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 animate-float" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white animate-fadeIn" style="animation-delay: 200ms;">No cooking in progress</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 animate-fadeIn" style="animation-delay: 400ms;">
+          Start cooking a recipe to track your progress here
+        </p>
+        <div class="mt-6 animate-fadeIn" style="animation-delay: 600ms;">
+          <a 
+            href="/recipes" 
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-jamie-orange hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-jamie-orange btn-pulse"
+          >
+            Explore Recipes
+          </a>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+<script>
+  // Handle checkbox interactions
+  document.querySelectorAll('.cooking-step').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const recipeId = this.getAttribute('data-recipe-id');
+      const stepIndex = parseInt(this.getAttribute('data-step-index'));
+      const label = this.nextElementSibling;
+      
+      // Update checkbox label styling
+      if (this.checked) {
+        label.classList.add('text-gray-500', 'dark:text-gray-400', 'line-through');
+        label.classList.remove('text-gray-700', 'dark:text-gray-300');
+      } else {
+        label.classList.remove('text-gray-500', 'dark:text-gray-400', 'line-through');
+        label.classList.add('text-gray-700', 'dark:text-gray-300');
+      }
+      
+      // Update recipe progress
+      updateRecipeProgress(recipeId);
+      
+      // Add wobble animation to the step item
+      const stepItem = this.closest('.step-item');
+      stepItem.classList.add('animate-wobble');
+      
+      // Remove animation after it completes
+      setTimeout(() => {
+        stepItem.classList.remove('animate-wobble');
+      }, 800);
+    });
+  });
+  
+  // Handle reset button interactions
+  document.querySelectorAll('.reset-progress').forEach(button => {
+    button.addEventListener('click', function() {
+      const recipeId = this.getAttribute('data-recipe-id');
+      const recipeCard = document.querySelector(`[data-recipe-id="${recipeId}"]`);
+      const checkboxes = recipeCard.querySelectorAll('.cooking-step');
+      
+      // Add shake animation to the recipe card
+      recipeCard.classList.add('animate-wobble');
+      
+      // Uncheck all checkboxes with delay for visual effect
+      checkboxes.forEach((checkbox, index) => {
+        setTimeout(() => {
+          checkbox.checked = false;
+          const label = checkbox.nextElementSibling;
+          label.classList.remove('text-gray-500', 'dark:text-gray-400', 'line-through');
+          label.classList.add('text-gray-700', 'dark:text-gray-300');
+        }, index * 100);
+      });
+      
+      // Update recipe progress
+      setTimeout(() => {
+        updateRecipeProgress(recipeId);
+        recipeCard.classList.remove('animate-wobble');
+      }, checkboxes.length * 100);
+      
+      // Show notification
+      showNotification('Progress reset successfully');
+    });
+  });
+  
+  // Update recipe progress based on completed steps
+  function updateRecipeProgress(recipeId) {
+    const recipeElement = document.querySelector(`[data-recipe-id="${recipeId}"]`);
+    const checkboxes = recipeElement.querySelectorAll('.cooking-step');
+    const totalSteps = checkboxes.length;
+    const completedSteps = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
+    
+    // Calculate new progress percentage
+    const progress = Math.round((completedSteps / totalSteps) * 100);
+    
+    // Update progress bar and percentage text
+    const progressBar = recipeElement.querySelector('.bg-jamie-orange');
+    const progressText = recipeElement.querySelector('.progress-percent');
+    
+    if (progressBar && progressText) {
+      // Animate progress change
+      animateProgressChange(progressBar, parseInt(progressBar.style.width), progress);
+      animateNumberChange(progressText, parseInt(progressText.textContent), progress);
+    }
+  }
+  
+  // Animate progress bar width change
+  function animateProgressChange(element, startValue, endValue) {
+    const duration = 700; // ms
+    const startTime = performance.now();
+    
+    function updateProgress(currentTime) {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      const easedProgress = easeOutQuad(progress);
+      const currentValue = startValue + (endValue - startValue) * easedProgress;
+      
+      element.style.width = `${currentValue}%`;
+      
+      if (progress < 1) {
+        requestAnimationFrame(updateProgress);
+      }
+    }
+    
+    requestAnimationFrame(updateProgress);
+  }
+  
+  // Animate number change
+  function animateNumberChange(element, startValue, endValue) {
+    const duration = 700; // ms
+    const startTime = performance.now();
+    
+    function updateNumber(currentTime) {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      const easedProgress = easeOutQuad(progress);
+      const currentValue = Math.round(startValue + (endValue - startValue) * easedProgress);
+      
+      element.textContent = `${currentValue}%`;
+      
+      if (progress < 1) {
+        requestAnimationFrame(updateNumber);
+      }
+    }
+    
+    requestAnimationFrame(updateNumber);
+  }
+  
+  // Easing function
+  function easeOutQuad(x) {
+    return 1 - (1 - x) * (1 - x);
+  }
+  
+  // Notification function
+  function showNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-10 opacity-0 transition-all duration-500 z-50';
+    notification.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+      notification.classList.remove('translate-y-10', 'opacity-0');
+      notification.classList.add('animate-scale');
+    }, 100);
+    
+    // Animate out and remove
+    setTimeout(() => {
+      notification.classList.add('translate-y-10', 'opacity-0');
+      setTimeout(() => {
+        notification.remove();
+      }, 500);
+    }, 3000);
+  }
+  
+  // Add 3D card effect
+  document.querySelectorAll('.card-3d').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const cardRect = card.getBoundingClientRect();
+      const cardCenterX = cardRect.left + cardRect.width / 2;
+      const cardCenterY = cardRect.top + cardRect.height / 2;
+      const mouseX = e.clientX - cardCenterX;
+      const mouseY = e.clientY - cardCenterY;
+      
+      // Calculate rotation based on mouse position (less pronounced than recommendations)
+      const rotateY = (mouseX / (cardRect.width / 2)) * 3; // max 3deg
+      const rotateX = -(mouseY / (cardRect.height / 2)) * 3; // max 3deg
+      
+      // Apply transform
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
+    });
+    
+    // Reset transform on mouseout
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+    });
+  });
+</script>

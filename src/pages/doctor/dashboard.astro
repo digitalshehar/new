@@ -1,0 +1,181 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Doctor Dashboard | Recipe Website">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <nav class="bg-white dark:bg-gray-800 shadow">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <div class="flex-shrink-0 flex items-center">
+              <h1 class="text-xl font-bold text-gray-900 dark:text-white">Doctor Dashboard</h1>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <button
+              id="logoutBtn"
+              class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="py-10">
+      <header>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 class="text-3xl font-bold leading-tight text-gray-900 dark:text-white">Welcome back, <span id="doctorName">Doctor</span></h1>
+        </div>
+      </header>
+      <main>
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+          <!-- Stats -->
+          <div class="mt-8">
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <!-- Patients Card -->
+              <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                      <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Patients</dt>
+                        <dd class="flex items-baseline">
+                          <div class="text-2xl font-semibold text-gray-900 dark:text-white" id="patientCount">0</div>
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+                  <div class="text-sm">
+                    <a href="/doctor/patients" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"> View all patients </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Guidelines Card -->
+              <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                      <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Nutritional Guidelines</dt>
+                        <dd class="flex items-baseline">
+                          <div class="text-2xl font-semibold text-gray-900 dark:text-white" id="guidelineCount">0</div>
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+                  <div class="text-sm">
+                    <a href="/doctor/guidelines" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"> Manage guidelines </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Meal Plans Card -->
+              <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                      <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                      <dl>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Meal Plans</dt>
+                        <dd class="flex items-baseline">
+                          <div class="text-2xl font-semibold text-gray-900 dark:text-white" id="mealPlanCount">0</div>
+                        </dd>
+                      </dl>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+                  <div class="text-sm">
+                    <a href="/doctor/meal-plans" class="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"> View meal plans </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="mt-8">
+            <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+              <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Recent Activity</h3>
+              </div>
+              <div class="border-t border-gray-200 dark:border-gray-700">
+                <div class="px-4 py-5 sm:p-6">
+                  <div id="recentActivity" class="space-y-4">
+                    <!-- Activity items will be populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { useDoctorStore } from '../../stores/doctorStore';
+
+  // Check authentication
+  const { isAuthenticated, profile, patients, guidelines, mealPlans, logout } = useDoctorStore.getState();
+  
+  if (!isAuthenticated) {
+    window.location.href = '/doctor/login';
+  }
+
+  // Update UI with doctor's information
+  if (profile) {
+    const doctorNameElement = document.getElementById('doctorName');
+    if (doctorNameElement) {
+      doctorNameElement.textContent = profile.name;
+    }
+  }
+
+  // Update statistics
+  const patientCountElement = document.getElementById('patientCount');
+  const guidelineCountElement = document.getElementById('guidelineCount');
+  const mealPlanCountElement = document.getElementById('mealPlanCount');
+
+  if (patientCountElement) patientCountElement.textContent = patients.length.toString();
+  if (guidelineCountElement) guidelineCountElement.textContent = guidelines.length.toString();
+  if (mealPlanCountElement) mealPlanCountElement.textContent = mealPlans.length.toString();
+
+  // Handle logout
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      logout();
+      window.location.href = '/doctor/login';
+    });
+  }
+
+  // Subscribe to store updates
+  useDoctorStore.subscribe((state) => {
+    if (!state.isAuthenticated) {
+      window.location.href = '/doctor/login';
+    }
+  });
+</script>

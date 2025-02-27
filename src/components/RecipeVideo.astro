@@ -1,0 +1,128 @@
+---
+interface Props {
+  videoUrl?: string;
+  title: string;
+  thumbnail?: string;
+}
+
+const { videoUrl, title, thumbnail } = Astro.props;
+
+// Default thumbnail if none provided
+const defaultThumbnail = "/images/recipes/default-video-thumb.jpg";
+---
+
+<div class="recipe-video mb-12" id="recipe-video">
+  {videoUrl ? (
+    <div class="relative">
+      <div class="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
+        <div
+          class="video-placeholder cursor-pointer group"
+          data-video-url={videoUrl}
+        >
+          <img
+            src={thumbnail || defaultThumbnail}
+            alt={`${title} video thumbnail`}
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div class="absolute inset-0 flex items-center justify-center">
+            <button
+              class="play-button bg-white/90 w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+              aria-label="Play video"
+            >
+              <svg
+                class="w-8 h-8 text-jamie-orange"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="video-container hidden">
+          <!-- Video iframe will be inserted here -->
+        </div>
+      </div>
+      <div class="mt-4">
+        <h3 class="text-lg font-semibold text-gray-900">Watch how to make {title}</h3>
+        <p class="text-sm text-gray-600 mt-1">
+          Follow along with Jamie as he shows you how to make this delicious recipe step by step.
+        </p>
+      </div>
+    </div>
+  ) : (
+    <div class="bg-gray-50 rounded-lg p-6 text-center">
+      <svg
+        class="w-12 h-12 text-gray-400 mx-auto mb-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+        />
+      </svg>
+      <p class="text-gray-600">Video coming soon!</p>
+    </div>
+  )}
+</div>
+
+<script>
+  class VideoPlayer {
+    private placeholder: HTMLElement | null;
+    private container: HTMLElement | null;
+    private videoUrl: string;
+
+    constructor() {
+      this.placeholder = document.querySelector('.video-placeholder');
+      this.container = document.querySelector('.video-container');
+      this.videoUrl = this.placeholder?.dataset.videoUrl || '';
+
+      this.initialize();
+    }
+
+    private initialize() {
+      this.placeholder?.addEventListener('click', () => this.loadVideo());
+    }
+
+    private loadVideo() {
+      if (!this.container || !this.placeholder) return;
+
+      // Create iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = this.videoUrl;
+      iframe.width = '100%';
+      iframe.height = '100%';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+
+      // Hide placeholder and show video
+      this.placeholder.classList.add('hidden');
+      this.container.classList.remove('hidden');
+      this.container.appendChild(iframe);
+    }
+  }
+
+  // Initialize video player
+  new VideoPlayer();
+</script>
+
+<style>
+  .aspect-w-16 {
+    position: relative;
+    padding-bottom: 56.25%;
+  }
+
+  .aspect-w-16 > * {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+</style>

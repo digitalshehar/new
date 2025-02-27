@@ -1,0 +1,168 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RecipeHero from '../../components/RecipeHero';
+import RecipeContent from '../../components/RecipeContent';
+import RecipeComments from '../../components/RecipeComments';
+import TableOfContents from '../../components/TableOfContents';
+import RecipeTimer from '../../components/RecipeTimer';
+import IngredientsList from '../../components/IngredientsList';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+
+const recipe = {
+  title: "Authentic Butter Chicken",
+  description: "A rich and creamy North Indian curry made with tender chicken pieces in a tomato-based sauce, finished with butter and cream. This restaurant-style dish is a crowd favorite!",
+  image: "/images/recipes/butter-chicken.jpg",
+  cookingTime: "45 minutes",
+  timeCategory: "Under 1 hour",
+  difficulty: "Medium",
+  serves: "4",
+  category: "Main Course",
+  slug: "butter-chicken",
+  featured: true,
+  rating: 4.9,
+  totalRatings: 328,
+  ingredients: [
+    "800g chicken thighs, boneless and skinless",
+    "2 cups tomato puree",
+    "1 cup heavy cream",
+    "100g butter",
+    "2 onions, finely chopped",
+    "2 tbsp ginger-garlic paste",
+    "2 tbsp tandoori masala",
+    "2 tsp garam masala",
+    "2 tsp kashmiri red chili powder",
+    "1 tsp turmeric powder",
+    "Salt to taste",
+    "Kasuri methi (dried fenugreek leaves)",
+    "Fresh coriander for garnish"
+  ],
+  method: [
+    {
+      step: "Marinate the chicken",
+      time: 30,
+      description: "Mix chicken with yogurt, ginger-garlic paste, and tandoori masala. Let it marinate for 30 minutes."
+    },
+    {
+      step: "Prepare the gravy base",
+      time: 15,
+      description: "Sauté onions until golden. Add tomato puree and spices. Cook until oil separates."
+    },
+    {
+      step: "Cook the chicken",
+      time: 20,
+      description: "Add marinated chicken to the gravy. Cook until tender and fully done."
+    },
+    {
+      step: "Finish the dish",
+      time: 10,
+      description: "Add cream, butter, and kasuri methi. Simmer until the sauce reaches desired consistency. Garnish with cream and coriander."
+    }
+  ],
+  tips: [
+    "Use Kashmiri red chili powder for the vibrant color without excessive heat",
+    "Let the chicken marinate overnight for best results",
+    "Don't skip the kasuri methi - it adds authentic flavor",
+    "Use good quality butter for the best taste"
+  ],
+  nutritionInfo: {
+    calories: "650",
+    protein: "45g",
+    carbs: "12g",
+    fat: "48g"
+  },
+  dietaryPreferences: ["Gluten-free"],
+  season: "All",
+  reviews: [],
+  prepTime: "40 mins",
+  totalTime: "85 mins",
+  variations: [
+    {
+      title: "Vegetarian Version",
+      description: "A meat-free take on butter chicken",
+      changes: [
+        "Replace chicken with paneer or mixed vegetables",
+        "Use vegetable stock instead of chicken stock",
+        "Add more cream for richness"
+      ]
+    },
+    {
+      title: "Healthier Version",
+      description: "A lighter version with fewer calories",
+      changes: [
+        "Use Greek yogurt instead of cream",
+        "Reduce butter quantity",
+        "Use chicken breast instead of thighs",
+        "Add more tomatoes for volume"
+      ]
+    }
+  ]
+};
+
+const sections = [
+  { id: 'ingredients', title: 'Ingredients' },
+  { id: 'method', title: 'Method' },
+  { id: 'tips', title: 'Chef\'s Tips' },
+  { id: 'variations', title: 'Variations' },
+  { id: 'nutrition', title: 'Nutrition' }
+];
+
+const breadcrumbItems = [
+  { label: 'Recipes', href: '/recipes' },
+  { label: recipe.title, href: `/recipes/${recipe.slug}` }
+];
+
+---
+
+<Layout title={`${recipe.title} | AillyCorner`}>
+  <main class="min-h-screen">
+    <Breadcrumbs items={breadcrumbItems} />
+
+    <div class="container mx-auto px-4 py-8">
+      <RecipeHero recipe={recipe} client:load />
+      <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-9">
+          <RecipeContent recipe={recipe} client:load>
+            <RecipeTimer steps={recipe.method} client:load />
+          </RecipeContent>
+          <RecipeComments slug={recipe.slug} client:load />
+        </div>
+        <aside class="lg:col-span-3">
+          <div class="sticky top-8">
+            <TableOfContents sections={sections} client:load />
+            <IngredientsList ingredients={recipe.ingredients} servings={recipe.serves} client:load />
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (min-width: 768px) {
+    .hero-image {
+      transform: translateZ(0);
+      will-change: transform;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>

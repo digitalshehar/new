@@ -1,0 +1,122 @@
+---
+interface Props {
+  initialServings: number;
+}
+
+const { initialServings } = Astro.props;
+---
+
+<div class="bg-white rounded-lg shadow-md p-6">
+  <h3 class="text-lg font-semibold text-jamie-blue mb-4">Adjust Servings</h3>
+  <div class="flex items-center gap-4">
+    <button
+      class="decrease-servings w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-jamie-orange hover:text-white transition-colors flex items-center justify-center"
+      aria-label="Decrease servings"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+      </svg>
+    </button>
+    <div class="flex-1 text-center">
+      <span class="servings-count text-2xl font-bold text-jamie-blue">{initialServings}</span>
+      <span class="text-gray-600">servings</span>
+    </div>
+    <button
+      class="increase-servings w-8 h-8 rounded-full bg-gray-100 text-gray-600 hover:bg-jamie-orange hover:text-white transition-colors flex items-center justify-center"
+      aria-label="Increase servings"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  class RecipeScaling {
+    private decreaseBtn: HTMLButtonElement;
+    private increaseBtn: HTMLButtonElement;
+    private servingsCount: HTMLElement;
+    private ingredients: NodeListOf<HTMLElement>;
+    private originalServings: number;
+    private originalQuantities: Map<HTMLElement, string>;
+
+    constructor() {
+      this.decreaseBtn = document.querySelector('.decrease-servings')!;
+      this.increaseBtn = document.querySelector('.increase-servings')!;
+      this.servingsCount = document.querySelector('.servings-count')!;
+      this.ingredients = document.querySelectorAll('#ingredients li span');
+      this.originalServings = parseInt(this.servingsCount.textContent || '1');
+      this.originalQuantities = new Map();
+
+      this.initialize();
+    }
+
+    private initialize() {
+      // Store original quantities
+      this.ingredients.forEach(ingredient => {
+        this.originalQuantities.set(ingredient, ingredient.textContent || '');
+      });
+
+      // Add event listeners
+      this.decreaseBtn.addEventListener('click', () => this.updateServings(-1));
+      this.increaseBtn.addEventListener('click', () => this.updateServings(1));
+    }
+
+    private updateServings(change: number) {
+      const currentServings = parseInt(this.servingsCount.textContent || '1');
+      const newServings = Math.max(1, currentServings + change);
+      
+      if (newServings === currentServings) return;
+
+      this.servingsCount.textContent = newServings.toString();
+      this.updateIngredientQuantities(newServings);
+    }
+
+    private updateIngredientQuantities(newServings: number) {
+      this.ingredients.forEach(ingredient => {
+        const originalText = this.originalQuantities.get(ingredient);
+        if (!originalText) return;
+
+        const regex = /(\d*\.?\d+)\s*([a-zA-Z]+)?/;
+        const match = originalText.match(regex);
+        
+        if (match) {
+          const [_, quantity, unit] = match;
+          const originalQuantity = parseFloat(quantity);
+          const scaledQuantity = (originalQuantity * newServings) / this.originalServings;
+          const formattedQuantity = this.formatQuantity(scaledQuantity);
+          
+          ingredient.textContent = originalText.replace(
+            regex,
+            `${formattedQuantity}${unit ? ' ' + unit : ''}`
+          );
+        }
+      });
+    }
+
+    private formatQuantity(quantity: number): string {
+      // Round to nearest 0.25
+      const rounded = Math.round(quantity * 4) / 4;
+      
+      // Convert to fraction if needed
+      if (rounded % 1 === 0) {
+        return rounded.toString();
+      } else if (rounded % 0.25 === 0) {
+        const whole = Math.floor(rounded);
+        const fraction = rounded - whole;
+        const fractionMap: Record<number, string> = {
+          0.25: '¼',
+          0.5: '½',
+          0.75: '¾'
+        };
+        return whole > 0 ? `${whole} ${fractionMap[fraction]}` : fractionMap[fraction];
+      }
+      
+      return rounded.toFixed(2);
+    }
+  }
+
+  // Initialize recipe scaling
+  new RecipeScaling();
+</script>

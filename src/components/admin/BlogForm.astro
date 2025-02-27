@@ -1,0 +1,250 @@
+---
+// Define props interface
+interface Props {
+  mode: 'create' | 'edit';
+  post?: {
+    title?: string;
+    slug?: string;
+    author?: string;
+    content?: string;
+    excerpt?: string;
+    category?: string;
+    status?: string;
+    image?: string;
+    tags?: string[];
+  };
+}
+
+// Get props with defaults
+const { 
+  mode = 'create', 
+  post = {
+    title: '',
+    slug: '',
+    author: '',
+    content: '',
+    excerpt: '',
+    category: '',
+    status: 'draft',
+    image: '',
+    tags: []
+  } 
+} = Astro.props;
+
+// Define categories for the dropdown
+const categories = [
+  'Healthy Eating',
+  'Quick Meals',
+  'Meal Prep',
+  'Seasonal',
+  'Vegetarian',
+  'Vegan',
+  'Kitchen Tips',
+  'Nutrition',
+  'Behind the Scenes'
+];
+
+// Define statuses for the dropdown
+const statuses = [
+  'draft',
+  'published',
+  'archived'
+];
+---
+
+<div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
+  <form id="blogForm" class="space-y-6">
+    <div class="space-y-4">
+      <div>
+        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+        <input
+          type="text"
+          name="title"
+          id="title"
+          value={post.title}
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-jamie-orange focus:ring-jamie-orange sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="author" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Author</label>
+        <input
+          type="text"
+          name="author"
+          id="author"
+          value={post.author}
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-jamie-orange focus:ring-jamie-orange sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+        <select
+          id="category"
+          name="category"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-jamie-orange focus:ring-jamie-orange sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          required
+        >
+          <option value="" disabled selected={!post.category}>Select a category</option>
+          {categories.map((category) => (
+            <option value={category} selected={post.category === category}>{category}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+        <select
+          id="status"
+          name="status"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-jamie-orange focus:ring-jamie-orange sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          required
+        >
+          {statuses.map((status) => (
+            <option value={status} selected={post.status === status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label for="excerpt" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Excerpt</label>
+        <textarea
+          id="excerpt"
+          name="excerpt"
+          rows="3"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-jamie-orange focus:ring-jamie-orange sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          required
+        >{post.excerpt}</textarea>
+      </div>
+
+      <div>
+        <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Featured Image URL</label>
+        <input
+          type="url"
+          name="image"
+          id="image"
+          value={post.image}
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-jamie-orange focus:ring-jamie-orange sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        />
+      </div>
+
+      <div>
+        <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags (comma separated)</label>
+        <input
+          type="text"
+          name="tags"
+          id="tags"
+          value={post.tags?.join(', ')}
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-jamie-orange focus:ring-jamie-orange sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          placeholder="e.g., nutrition, healthy, recipes"
+        />
+      </div>
+
+      <div>
+        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content (Markdown)</label>
+        <textarea
+          id="content"
+          name="content"
+          rows="15"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-jamie-orange focus:ring-jamie-orange sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono"
+          required
+        >{post.content}</textarea>
+      </div>
+    </div>
+
+    <div class="flex justify-end space-x-3">
+      <a
+        href="/admin/blog"
+        class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-jamie-orange focus:ring-offset-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+      >
+        Cancel
+      </a>
+      <button
+        type="submit"
+        class="inline-flex justify-center rounded-md border border-transparent bg-jamie-orange px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-jamie-orange focus:ring-offset-2"
+      >
+        {mode === 'create' ? 'Create Post' : 'Update Post'}
+      </button>
+    </div>
+
+    <!-- Hidden field for slug -->
+    <input type="hidden" id="slug" name="slug" value={post.slug} />
+  </form>
+</div>
+
+<script define:vars={{ mode, post }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('blogForm');
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Get form data
+      const formData = new FormData(form);
+      
+      // Create post data object
+      const postData = {
+        title: formData.get('title'),
+        author: formData.get('author'),
+        excerpt: formData.get('excerpt'),
+        category: formData.get('category'),
+        status: formData.get('status'),
+        image: formData.get('image') || '',
+        content: formData.get('content'),
+      };
+      
+      // Process tags
+      const tagsString = formData.get('tags');
+      if (tagsString) {
+        postData.tags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag);
+      }
+      
+      // Add slug if in edit mode
+      if (mode === 'edit') {
+        postData.slug = formData.get('slug');
+      }
+      
+      try {
+        // Set loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Saving...';
+        
+        // Determine API endpoint
+        const endpoint = mode === 'create' 
+          ? '/api/admin/blog/create' 
+          : '/api/admin/blog/update';
+        
+        // Send request
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(postData),
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.message || 'An error occurred');
+        }
+        
+        // Redirect to blog list on success
+        window.location.href = '/admin/blog';
+        
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        alert(`Error: ${error.message || 'An unknown error occurred'}`);
+        
+        // Reset button state
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.innerHTML = mode === 'create' ? 'Create Post' : 'Update Post';
+      }
+    });
+  });
+</script>

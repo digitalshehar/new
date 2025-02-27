@@ -1,0 +1,183 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navigation from '../../components/Navigation.astro';
+import BlogGrid from '../../components/blog/BlogGrid.astro';
+import { SearchBar } from '../../components/blog/SearchBar';
+import { CategoryFilter } from '../../components/blog/CategoryFilter';
+import { NewsletterSignup } from '../../components/blog/NewsletterSignup';
+import { getBlogPosts } from '../../lib/api';
+
+// Get blog posts from the API
+const posts = await getBlogPosts();
+const featuredPost = posts[0];
+const otherPosts = posts.slice(1);
+
+// Get unique categories
+const categories = [...new Set(posts.map(post => post.category).filter(Boolean))];
+---
+
+<Layout title="Blog | Food From Within">
+  <Navigation />
+  
+  <main class="pt-32 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Hero Section -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-jamie-blue mb-4">Food & Cooking Blog</h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+          Discover delicious recipes, cooking tips, and food stories from Jamie's kitchen.
+        </p>
+      </div>
+
+      <!-- Search and Filter -->
+      <div class="mb-12">
+        <SearchBar client:load onSearch={(query) => {
+          // Client-side filtering will be handled by JavaScript
+          window.dispatchEvent(new CustomEvent('filterPosts', { detail: { query } }));
+        }} />
+        <CategoryFilter
+          client:load
+          categories={categories}
+          selectedCategory=""
+          onCategoryChange={(category) => {
+            window.dispatchEvent(new CustomEvent('filterPosts', { detail: { category } }));
+          }}
+        />
+      </div>
+
+      {featuredPost && (
+        <!-- Featured Post -->
+        <div class="mb-16">
+          <a href={`/blog/${featuredPost.slug}`} class="group">
+            <div class="relative rounded-xl overflow-hidden aspect-[21/9]">
+              <img
+                src={featuredPost.image || '/images/default-blog.jpg'}
+                alt={featuredPost.title}
+                class="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
+                {featuredPost.category && (
+                  <span class="inline-block px-4 py-1 rounded-full bg-jamie-orange text-sm font-medium mb-4">
+                    {featuredPost.category}
+                  </span>
+                )}
+                <h2 class="text-3xl font-bold mb-4 group-hover:text-jamie-orange transition-colors">
+                  {featuredPost.title}
+                </h2>
+                <p class="text-lg mb-4 opacity-90">{featuredPost.excerpt}</p>
+                <div class="flex items-center text-sm">
+                  <img
+                    src={`/images/authors/${featuredPost.author.toLowerCase().replace(' ', '-')}.jpg`}
+                    alt={featuredPost.author}
+                    class="w-10 h-10 rounded-full mr-4"
+                    onerror="this.src='/images/default-avatar.jpg'"
+                  />
+                  <div>
+                    <p class="font-medium">{featuredPost.author}</p>
+                    <p class="opacity-75">
+                      {new Date(featuredPost.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      )}
+
+      <!-- Other Posts Grid -->
+      <div id="posts-grid" class="mb-16">
+        {otherPosts.length > 0 && (
+          <div class="mb-16">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">Latest Articles</h2>
+            <BlogGrid posts={otherPosts} />
+          </div>
+        )}
+
+        {posts.length === 0 && (
+          <div class="text-center py-12">
+            <p class="text-lg text-gray-600 dark:text-gray-400">No blog posts found.</p>
+          </div>
+        )}
+      </div>
+
+      <!-- Newsletter Signup -->
+      <NewsletterSignup client:load />
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Animate elements on scroll
+  gsap.utils.toArray('article').forEach((article: Element) => {
+    gsap.from(article, {
+      y: 50,
+      opacity: 0,
+      duration: 1,
+      scrollTrigger: {
+        trigger: article,
+        start: 'top bottom-=100',
+        toggleActions: 'play none none reverse'
+      }
+    });
+  });
+
+  // Handle post filtering
+  const postsGrid = document.getElementById('posts-grid');
+  let currentQuery = '';
+  let currentCategory = '';
+
+  window.addEventListener('filterPosts', ((event: CustomEvent) => {
+    const { query, category } = event.detail;
+    
+    if (query !== undefined) currentQuery = query.toLowerCase();
+    if (category !== undefined) currentCategory = category;
+
+    // Get all post elements
+    const posts = postsGrid?.querySelectorAll('article');
+    if (!posts) return;
+
+    posts.forEach((post) => {
+      const title = post.querySelector('h3')?.textContent?.toLowerCase() || '';
+      const excerpt = post.querySelector('p')?.textContent?.toLowerCase() || '';
+      const postCategory = post.querySelector('.bg-jamie-orange')?.textContent?.toLowerCase() || '';
+
+      const matchesQuery = !currentQuery || 
+        title.includes(currentQuery) || 
+        excerpt.includes(currentQuery);
+      
+      const matchesCategory = !currentCategory || 
+        postCategory === currentCategory.toLowerCase();
+
+      if (matchesQuery && matchesCategory) {
+        post.style.display = '';
+        gsap.to(post, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+      } else {
+        gsap.to(post, {
+          opacity: 0,
+          y: 20,
+          duration: 0.5,
+          ease: 'power2.in',
+          onComplete: () => {
+            post.style.display = 'none';
+          }
+        });
+      }
+    });
+  }) as EventListener);
+</script>

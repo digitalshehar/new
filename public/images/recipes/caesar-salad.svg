@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- Bowl -->
+  <ellipse cx="400" cy="350" rx="250" ry="100" fill="#e0e0e0"/>
+  <path d="M150 350 Q 400 500 650 350" fill="none" stroke="#d0d0d0" stroke-width="10"/>
+  
+  <!-- Lettuce -->
+  <path d="M200 300 Q 400 200 600 300" fill="#4caf50" opacity="0.8"/>
+  <path d="M220 320 Q 400 220 580 320" fill="#66bb6a" opacity="0.7"/>
+  <path d="M240 340 Q 400 240 560 340" fill="#81c784" opacity="0.6"/>
+  
+  <!-- Croutons -->
+  <rect x="300" y="280" width="20" height="20" fill="#d4a017" transform="rotate(45 310 290)"/>
+  <rect x="400" y="260" width="20" height="20" fill="#d4a017" transform="rotate(-15 410 270)"/>
+  <rect x="500" y="290" width="20" height="20" fill="#d4a017" transform="rotate(30 510 300)"/>
+  
+  <!-- Parmesan Shavings -->
+  <path d="M320 270 L340 275 L335 290" fill="#fff8e1"/>
+  <path d="M420 250 L440 255 L435 270" fill="#fff8e1"/>
+  <path d="M520 280 L540 285 L535 300" fill="#fff8e1"/>
+</svg>

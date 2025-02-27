@@ -1,0 +1,57 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { collections } from '../../data/recipes';
+
+const breadcrumbItems = [
+  { label: 'Categories', href: '/categories' }
+];
+
+const headerOptions = {
+  bgColor: 'bg-gradient-to-r from-indigo-500 to-purple-600',
+  textColor: 'text-white',
+  overlay: true
+};
+
+const categoryTypes = {
+  'seasonal': 'Seasonal Collections',
+  'dietary': 'Dietary Preferences',
+  'time-based': 'Time-Based Collections'
+};
+---
+
+<Layout title="Recipe Categories | AillyCorner">
+  <main class="min-h-screen">
+    <Breadcrumbs items={breadcrumbItems} header={headerOptions} />
+    
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-4xl mx-auto text-center mb-12">
+        <h1 class="text-4xl font-bold mb-4">Recipe Categories</h1>
+        <p class="text-lg text-gray-600">Explore our curated collections of delicious recipes</p>
+      </div>
+
+      {Object.entries(categoryTypes).map(([type, title]) => (
+        <div class="mb-12">
+          <h2 class="text-2xl font-semibold mb-6">{title}</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {collections
+              .filter(collection => collection.type === type)
+              .map(collection => (
+                <a 
+                  href={`/categories/${collection.id}`}
+                  class="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <h3 class="text-xl font-semibold mb-2">{collection.title}</h3>
+                  <p class="text-gray-600">{collection.description}</p>
+                  <span class="inline-block mt-4 text-indigo-600 hover:text-indigo-800">
+                    View Recipes →
+                  </span>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      ))}
+    </div>
+  </main>
+</Layout>

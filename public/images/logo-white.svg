@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Text "Jamie" -->
+  <text x="10" y="40" font-family="Arial" font-size="40" font-weight="bold" fill="white">Jamie</text>
+  
+  <!-- Decorative elements -->
+  <path d="M160 20 C170 20, 180 30, 180 40 S170 60, 160 60" stroke="white" stroke-width="2" fill="none"/>
+  <circle cx="170" cy="30" r="3" fill="white"/>
+  
+  <!-- Chef's hat -->
+  <path d="M140 25 C140 15, 150 10, 160 10 S180 15, 180 25 L180 35 L140 35 Z" stroke="white" stroke-width="2" fill="none"/>
+</svg>
