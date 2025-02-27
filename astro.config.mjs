@@ -6,11 +6,19 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
+  // Output mode: 'server' for server-side rendering
   output: 'server',
+  // Adapter for Vercel deployment
   adapter: vercel(),
+  // Integrations for Tailwind CSS and React
   integrations: [tailwind(), react()],
-  output: 'server', // Changed from 'static' to 'server' to support API endpoints
+  // Build configuration
   build: {
+    // Output format: 'file' for optimized file output
     format: 'file'
+  },
+  // Define a custom server port (optional)
+  server: {
+    port: 3000 // Default is 3000
   }
 });
